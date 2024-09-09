@@ -1,0 +1,6 @@
+//artisan command create Models
+
+php artisan make:model Product
+php artisan make:model Category
+php artisan make:model Order
+php artisan make:model OrderItem

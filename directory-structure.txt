@@ -1,0 +1,63 @@
+database/
+        migrations/
+                    create_products_table.php 
+                    create_categorires_table.php
+                    create_suppliers_table.php 
+                    create_purchases_table.php 
+                    create_sales_table.php 
+                    create_stocks_table.php 
+app/
+    Models/
+        Product.php
+        Category.php 
+        Supplier.php 
+        purchase.php
+        Sale.php
+        Stock.php
+    Http/
+        Controllers/
+                ProductController.php 
+                CategoryController.php 
+                SupplierController.php 
+                PurchaseController.php 
+                SaleController.php 
+                StockController.php  
+resources/
+         views/
+                layouts/
+                        app.php
+                products/ 
+                        index.blade.php 
+                        create.blade.php 
+                        edit.blade.php 
+                        show.blade.php 
+                categories/ 
+                        index.blade.php 
+                        create.blade.php  
+                        edit.blade.php 
+                        show.blade.php 
+                suppliers/ 
+                       index.blade.php 
+                       create.blade.php 
+                       edit.blade.php 
+                       show.blade.php 
+                purchases/ 
+                       index.blade.php 
+                       create_blade.php 
+                       edit_blade.php 
+                       show.blade.php 
+                sales/ 
+                      index.blade.php 
+                      create.blade.php 
+                      edit.blade.php 
+                      show.blade.php 
+                stocks/ 
+                      index.blade.php 
+                      create.blade.php 
+                      edit.blade.php 
+                      show.blade.php 
+routes/ 
+      web.php 
+
+              
+

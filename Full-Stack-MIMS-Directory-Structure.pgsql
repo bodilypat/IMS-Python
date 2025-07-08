@@ -61,58 +61,47 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 └── README.md                                   # Project overiew and setup instructions
 │
 ├── frontend/
-│   ├── index.html
-│   ├── login.html
-│   ├── register.html
-│   ├── pages/
-│   │   ├── dashboard.html
-│   │   ├── inventoryList.tsx
-│   │   ├── AddInventory.tsx
-│   │   ├── StockIn.tsx
-│   │   ├── StockOut.tsx
-│   │   ├── reports.tsx
-│   │   └── Login.tsx
-│   │
-│   ├── components/                     # Reusable frontend components
-│   │   ├── header.html
-│   │   ├── sidebar.html
-│   │   ├── footer.html
-│   │   └── modal.html
-│   │
 │   ├── assets/
-│   │   ├── css/
-│   │   │   ├── main.css
-│   │   │   ├── layout.css
-│   │   │   ├── reset.css
-│   │   │   └── modules/
-│   │   │       ├── navbars.css
-│   │   │       ├── table.css
-│   │   │       └── form.css
-│   │   ├── js/
-│   │   │   ├── app.js                       # Entry point
-│   │   │   ├── api.js                       # AJAX request to backend
-│   │   │   ├── auth.js                      # Login/session Logic
-│   │   │   ├── utils/                       # Helper function
-│   │   │   │   ├── modal.js
-│   │   │   │   ├── dropdown.js
-│   │   │   │   └── sidebar.js
-│   │   │   └── modules/
-│   │   │       ├── customers.js
-│   │   │       ├── orders.js
-│   │   │       ├── items.js
-│   │   │       ├── products.js
-│   │   │       ├── categories.js
-│   │   │       ├── purchases.js
-│   │   │       ├── vendors.js
-│   │   │       └── users.js
-│   │   └── images/
-│   │       ├── logo.png
-│   │       └── icons/
-│
-├── data/
-│   ├── customers.json
-│   └── products.json
-│
-├── uploads/
-├── package.json
-│
+│   │   ├── img/
+│   │   │   └── logo.png
+│   │   ├── icons/
+│   │   │   └── inventory.svg
+│   ├── css/                     
+│   │   ├── base.css
+│   │   ├── layout.css
+│   │   ├── components.css
+│   │   └── page.css
+│   ├── js/
+│   │   ├── api/                          
+│   │   │   ├── auth.js                      
+│   │   │   ├── inventory.js                      
+│   │   │   ├── suppliers.js                      
+│   │   │   └── stock.js
+│   │   ├── components/                          
+│   │   │   ├── navbar.js                      
+│   │   │   ├── table.js                                     
+│   │   │   └── model.js
+│   │   ├── pages/                          
+│   │   │   ├── dashboard.js                      
+│   │   │   ├── login.js                      
+│   │   │   ├── inventory.js  
+│   │   │   ├── suppliers.js                           
+│   │   │   └── stock.js
+│   │   ├── utils/                          
+│   │   │   ├── formValidator.js                      
+│   │   │   ├── tokenManager.js                                 
+│   │   │   └── domUtils.js
+│   │   │
+│   │   └── main.js
+│   │
+│   ├── html/
+│   │   ├── index.html
+│   │   ├── dashboard.html
+│   │   ├── inventory.html
+│   │   ├── suppliers.htm
+│   │   └── stock.html
+│   │
+│   ├── .env
+│   ├── .README.md
+│   └── package.json
+

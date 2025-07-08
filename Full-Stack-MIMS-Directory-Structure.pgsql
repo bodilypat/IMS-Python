@@ -1,47 +1,47 @@
-Full-Stack-IMS-Directory-Structure/
+Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 ├── backend/
 │   ├── app/                              
 │   │   ├── api/                                # Defines RESTful endpoints using FastAPI
 │   │   │   ├── v1/
-│   │   │   │   ├── router.py
 │   │   │   │   ├── endpoints/
 │   │   │   │	│	├── auth.py
-│   │   │   │	│	├── inventorys.py
+│   │   │   │	│	├── inventory.py
 │   │   │   │	│	├── suppliers.py
 │   │   │   │   │   └── stock.py
-│   │   │   │   └── v1.py                       # Router aggregator                   
-│   │   ├── core/                               # App configs, environment and JWT security
-│   │   │   ├── config.py                             
-│   │   │   ├── security.py                     # JWT, password hoshing
-│   │   │   └── logging.py  
-│   │   ├── crud/
+│   │   │   │   ├── router.py
+│   │   │   │   └── v1.py                       # Aggregates v1 endpoints                   
+│   │   ├── core/                               # App configurations, environment and JWT security
+│   │   │   ├── config.py                       # Application settings      
+│   │   │   ├── security.py                     # JWT, password hoshing, password hashing
+│   │   │   └── logging.py                      # Logging configuration
+│   │   ├── crud/                               # CRUD operations
 │   │   │   ├── inventory.py
 │   │   │   ├── stock.py
-│   │   │   └── supplier.py                     
-│   │   ├── db/                                 # Daabase connection and model loading
+│   │   │   └── supplier.py                      
+│   │   ├── db/                                 # Daabase connection and model registration
 │   │   │   ├── base.py
 │   │   │   ├── base_class.py
-│   │   │   └── session.py                      # SQLALchemy  session factory
-│   │   ├── models/                             SQLAlchemy ORM models 
+│   │   │   └── session.py                      # SQLALchemy  session factory 
+│   │   ├── deps.py								# Dependency injection for FastAPI
+│   │   ├── models/                             # SQLAlchemy ORM models 
 │   │   │   ├── user.py
 │   │   │   ├── inventory.py
-│   │   │   ├── supplier.py
-│   │   │   └── stock.py
-│   │   ├── schemas/                            # Pydenticmodels
+│   │   │   ├── stock.py
+│   │   │   └── supplier.py
+│   │   ├── schemas/                            # Pydantic schemas for request/response validation 
 │   │   │   ├── token.py
 │   │   │   ├── user.py					          
 │   │   │   ├── inventory.py                        
 │   │   │   ├── stock.py                       
-│   │   │   └── supplier.py                    
-│   │   ├── services/                           # business logic
+│   │   │   └── supplier.py     
+│   │   ├── services/                           # Business logic
 │   │   │   ├── auth_service.py
 │   │   │   ├── report_service.py
-│   │   │   └── alert_service.py   
+│   │   │   └── alert_service.py                
 │   │   ├── utils/                              # FastAPI app entry point
 │   │   │   ├── email.py
 │   │   │   └── file.py         
-│   │   ├── main.py								# FastAPI app entry point
-│   │   └── deps.py                             # Dependency  overrides                        
+│   │   └── main.py                             # Dependency  overrides                        
 │   ├── alembics/                               # DB migrations
 │   │   ├── versions/  
 │   │   └── env.py                   
@@ -56,9 +56,9 @@ Full-Stack-IMS-Directory-Structure/
 │   │       ├── test_doctors.py
 │   │       └── test_appointments.py                             
 ├── .env                                        # Environment variables
-├── requirements.py                                 
-├── docker-compose.json                             
-└── README.md
+├── requirements.txt                            # Python dependencies
+├── docker-compose.json                         # Docker Compose Configuration    
+└── README.md                                   # Project overiew and setup instructions
 │
 ├── frontend/
 │   ├── index.html

@@ -62,46 +62,46 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   │   │   └── logo.png
 │   │   ├── icons/
 │   │   │   └── inventory.svg
-│   ├── css/                     
-│   │   ├── base.css
-│   │   ├── layout.css
-│   │   ├── components.css
-│   │   └── page.css
-│   ├── js/
-│   │   ├── api/                          
+│   ├── css/                                     # All stylesheets
+│   │   ├── base.css                             # Reset and base styles
+│   │   ├── layout.css                           # Grid, flexbox layouts
+│   │   ├── components.css                       # UI components: buttons, forms
+│   │   └── page.css                             # Page-specific styles
+│   ├── js/                                      # JavaScript Logic
+│   │   ├── api/                                 # API interaction layer
 │   │   │   ├── auth.js                      
 │   │   │   ├── inventory.js                      
 │   │   │   ├── suppliers.js                      
 │   │   │   └── stock.js
-│   │   ├── components/                          
+│   │   ├── components/                         # Reuseable DOM component creators 
 │   │   │   ├── navbar.js                      
 │   │   │   ├── table.js                                     
 │   │   │   └── model.js
-│   │   ├── pages/                          
+│   │   ├── pages/                              # Page logic/scripts
 │   │   │   ├── dashboard.js                      
 │   │   │   ├── login.js                      
 │   │   │   ├── inventory.js  
 │   │   │   ├── suppliers.js                           
 │   │   │   └── stock.js
-│   │   ├── utils/                          
+│   │   ├── utils/                              # Helper functions
 │   │   │   ├── formValidator.js                      
 │   │   │   ├── tokenManager.js                                 
 │   │   │   └── domUtils.js
 │   │   │
-│   │   └── main.js
+│   │   └── main.js                    		    # App initializer and routing logic
 │   │
-│   ├── html/
-│   │   ├── index.html
+│   ├── html/                           		# All HTML pages
+│   │   ├── index.html                  		# Login / Landing page
 │   │   ├── dashboard.html
 │   │   ├── inventory.html
 │   │   ├── suppliers.htm
 │   │   └── stock.html
 │   │
-│   ├── .env
-│   ├── .README.md
-│   └── package.json
-├── .env                                        # Environment variables
-├── requirements.txt                            # Python dependencies
-├── docker-compose.json                         # Docker Compose Configuration    
-└── README.md                                   # Project overiew and setup instruction
+│   ├── .env                                    # environment variables (for devs, optional)
+│   ├── .README.md                              # Project instructions
+│   └── package.json                            # If using build tools or npm package (optional)
+├── .env                                        
+├── requirements.txt                            
+├── docker-compose.json                         
+└── README.md                                  
 

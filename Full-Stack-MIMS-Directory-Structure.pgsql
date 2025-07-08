@@ -55,11 +55,7 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   │   └── conftest.py  
 │   │       ├── test_doctors.py
 │   │       └── test_appointments.py                             
-├── .env                                        # Environment variables
-├── requirements.txt                            # Python dependencies
-├── docker-compose.json                         # Docker Compose Configuration    
-└── README.md                                   # Project overiew and setup instructions
-│
+│   │
 ├── frontend/
 │   ├── assets/
 │   │   ├── img/
@@ -104,4 +100,8 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   ├── .env
 │   ├── .README.md
 │   └── package.json
+├── .env                                        # Environment variables
+├── requirements.txt                            # Python dependencies
+├── docker-compose.json                         # Docker Compose Configuration    
+└── README.md                                   # Project overiew and setup instruction
 

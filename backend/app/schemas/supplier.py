@@ -1,6 +1,6 @@
 # backend/app/schemas/supplier.py 
 
-fromf pydantic import BaseModel, EmailStr, constr 
+from pydantic import BaseModel, EmailStr, constr 
 from typing import Optional
 from datetime import datetime
 
@@ -23,7 +23,7 @@ class SupplierUpdate(BaseModel)
 class Supplier(SupplierBase):
 	id: int
 	created_at: datetime
-	updated_at: Optional[datetime]
+	updated_at: Optional[datetime] = None
 	
 	class Config:
 		orm_mode = True

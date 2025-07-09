@@ -1,18 +1,26 @@
-# Properties to receive via API on creation
-class InventoryUpdate(BaseModel): 
-	id: int
-	created_at: datetime
-	updated_at: datetime 
+# backend/app/schemas/inventory.py
+
+from datetime import datetime
+from typing import Optional 
+from pydantic import BaseModel, Field
+
+class InventoryBase(BaseModel):
+	name: str = Field(...)
+	description: Optional[str] = None
+	category: Optional[str] = Field(None,...)
+	unit: str = Field(...)
+	is_controlled_substance: bool = False 
 	
-class Config:
-	orm_mode = Ture 
-	
-# Public response schemas
-class Inventory(InventoryInDBBase):
-	pass
-	
-# Internal DB representation
-class InventoryInDB(InventoryInDBBase):
+class InventoryCreate(InventoryBase):
+	pass 
+
+class InventoryUpdate(InventoryBase):
 	pass 
 	
+class Inventory(InventoryBase):
+	id: int
+	created_at: datetime
 	
+	class Config: 
+		orm_mode = True 
+		

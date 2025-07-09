@@ -7,22 +7,14 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   │   │   │	│	├── auth.py
 │   │   │   │	│	├── inventory.py
 │   │   │   │	│	├── suppliers.py
-│   │   │   │   │   └── stock.py
+│   │   │   │	│	├── stocks.py
+│   │   │   │   │   └── reports.py
 │   │   │   │   ├── router.py
 │   │   │   │   └── v1.py                       # Aggregates v1 endpoints                   
 │   │   ├── core/                               # App configurations, environment and JWT security
 │   │   │   ├── config.py                       # Application settings      
 │   │   │   ├── security.py                     # JWT, password hoshing, password hashing
 │   │   │   └── logging.py                      # Logging configuration
-│   │   ├── crud/                               # CRUD operations
-│   │   │   ├── inventory.py
-│   │   │   ├── stock.py
-│   │   │   └── supplier.py                      
-│   │   ├── db/                                 # Daabase connection and model registration
-│   │   │   ├── base.py
-│   │   │   ├── base_class.py
-│   │   │   └── session.py                      # SQLALchemy  session factory 
-│   │   ├── deps.py								# Dependency injection for FastAPI
 │   │   ├── models/                             # SQLAlchemy ORM models 
 │   │   │   ├── user.py
 │   │   │   ├── inventory.py
@@ -33,14 +25,23 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   │   │   ├── user.py					          
 │   │   │   ├── inventory.py                        
 │   │   │   ├── stock.py                       
-│   │   │   └── supplier.py     
+│   │   │   └── supplier.py    
 │   │   ├── services/                           # Business logic
 │   │   │   ├── auth_service.py
 │   │   │   ├── report_service.py
-│   │   │   └── alert_service.py                
+│   │   │   └── alert_service.py    
+│   │   ├── db/                                 # Daabase connection and model registration
+│   │   │   ├── base.py
+│   │   │   ├── base_class.py
+│   │   │   └── session.py                      # SQLALchemy  session factory    
+│   │   ├── crud/                               # CRUD operations
+│   │   │   ├── inventory.py
+│   │   │   ├── stock.py
+│   │   │   └── supplier.py                            
 │   │   ├── utils/                              # FastAPI app entry point
 │   │   │   ├── email.py
 │   │   │   └── file.py         
+│   │   ├── deps.py								# Dependency injection for FastAPI  
 │   │   └── main.py                             # Dependency  overrides                        
 │   ├── alembics/                               # DB migrations
 │   │   ├── versions/  

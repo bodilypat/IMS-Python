@@ -1,31 +1,45 @@
 # backend/app/services/auth_service.py
 
 from datetime import timedelta
-from fastapi.security import OAuth2PasswordRequestFrom
-from sqlalchemy.orm import Session
+from typing import Optional 
 
-from app import models, schemas, core 
-from app.core.security import verify_password, create_access_token
-from app.card import user as crud_user 
-from app.core.config import setting 
+from sqlalchemy.orm import Session 
+from jose import JWTError, jwt 
+from passlib.context import CryptContext 
 
-def authenticate_user(db: Session, username: str, password: str):
-	user = crud_user_get_by_username(db, username=username)
-	if not user or not verify_password(password, user.hashed_password):
-		return None
-	return user 
-	
-def login_user(db: Session, from_date: OAuth2PasswordRequestForm):
-	user = authenticate_user(db, from_data.username, form_data.password)
-	if not user:
-		return None 
+from app.core.security import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app import models, schemas, crud 
+
+pwd_context = CryptContext(schemas=["bcrypt"], deprecated="aauto")
+
+class AuthService:
+	def __init__(self, db: Session)
+		self.db = db 
 		
-	access_Token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-	access_token = create_access_token(
-		data= {"sub": user.username}, expires_delta=access_token_expires
-	)
-	return(
-		"access_token": access_token,
-		"token_type": "bearer"
-	}
+	def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+		return pwd_context.verify(plain_password, hashed_password)
+		
+	def get_password_hash(self, password: str) -> str:
+		return pwd_context.hash(password)
+		
+	def authenticate_user(self, username: str, password: str) -> Optional(models.User]:
+		user = crud.user.get_by_username(self.db, username=username)
+		if not user:
+			return None 
+		if not self.verify_password(password, user.hashed_password):
+			return None 
+		return user 
+		
+	def create_access_token(self, data: dict, expires_delta: Optional[timedelta] = None) -> str:
+		to_encode = data.copy()
+		expire = (
+				timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+				if expires_delta is None 
+				else expires_delta 
+			)
+			to_encode.update({"exp": expire})
+			encode_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+			return encode_jwt 
+			
+
 	

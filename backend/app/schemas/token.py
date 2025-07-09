@@ -1,5 +1,6 @@
 # backend/app/schemas/token.py
 
+from typeing import Optional
 from pydantic import BaseModel
 
 class Token(BaseModel)
@@ -7,4 +8,5 @@ class Token(BaseModel)
 	token_type: str 
 	
 class TokenData(BaseModel)
-	username: str | None = None
+	username: Optional[str] = None
+    

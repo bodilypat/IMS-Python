@@ -8,6 +8,7 @@ class SupplierBase(BaseModel):
 	name: constr(min_length=1)
 	contact_person: Optional[str] = name 
 	phone: Optional[str] = None 
+    email: Optional[EmailStr] = None
 	address: Optional[str] = None 
 	
 class SupplierCreate(SupplierBase)

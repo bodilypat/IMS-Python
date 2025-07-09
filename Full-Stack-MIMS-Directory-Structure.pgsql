@@ -35,6 +35,8 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   │   │   ├── base_class.py
 │   │   │   └── session.py                      # SQLALchemy  session factory    
 │   │   ├── crud/                               # CRUD operations
+│   │   │   ├── __init__.py                     # Import 'inventory', 'stock', 'supplier'
+│   │   │   ├── base.py                         # Reusable CRUD logic
 │   │   │   ├── inventory.py
 │   │   │   ├── stock.py
 │   │   │   └── supplier.py                            

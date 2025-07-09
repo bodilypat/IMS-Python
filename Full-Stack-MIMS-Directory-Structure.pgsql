@@ -45,18 +45,15 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 │   ├── alembics/                               # DB migrations
 │   │   ├── versions/  
 │   │   └── env.py                   
-│   ├── tests/  
+│   ├── tests/   
 │   │   ├── test_inventory.py
 │   │   ├── test_auth.py
-│   │   │   ├── test_auth.py
-│   │   │   ├── test_patients.py
-│   │   │   ├── test_doctors.py
-│   │   │   └── test_appointments.py    
-│   │   └── conftest.py  
-│   │       ├── test_doctors.py
-│   │       └── test_appointments.py                             
+│   │   ├── test_suppliers.py
+│   │   ├── test_stocks.py
+│   │   ├── test_users.py
+│   │   └── conftest.py                                 
 │   │
-├── frontend/
+├── frontend/( with JavaScript, HTML, CSS)
 │   ├── assets/
 │   │   ├── img/
 │   │   │   └── logo.png
@@ -104,4 +101,3 @@ Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
 ├── requirements.txt                            
 ├── docker-compose.json                         
 └── README.md                                  
-

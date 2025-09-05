@@ -1,68 +1,77 @@
 Full-Stack-Inventory-Management-System-Directory-Structure/
 ├── backend/
 │   ├── app/                              
-│   │   ├── api/                                # Defines RESTful endpoints using FastAPI
-│   │   │   ├── v1/
-│   │   │   │   ├── endpoints/
-│   │   │   │	│	├── auth.py
-│   │   │   │	│	├── inventory.py
-│   │   │   │	│	├── suppliers.py
-│   │   │   │	│	├── stocks.py
-│   │   │   │   │   └── reports.py
-│   │   │   │   ├── router.py
-│   │   │   │   └── v1.py                       # Aggregates v1 endpoints   
-│   │   │   └── __init__.py                
-│   │   ├── core/                               # App configurations, environment and JWT security
-│   │   │   ├── config.py                       # Application settings      
-│   │   │   ├── security.py                     # JWT, password hoshing, password hashing
-│   │   │   ├── logging.py
-│   │   │   └── constants.py                    # Logging configuration
-│   │   ├── models/                             # SQLAlchemy ORM models 
-│   │   │   ├── __init__.py
+│   │   ├── api/                                      # FastAPI endpoints (routes/controllers)
+│   │   │   └── v1/
+│   │   │       ├── endpoints/
+│   │   │   	│	├── auth_api.py
+│   │   │   	│	├── product_api.py
+│   │   │   	│	├── supplier_api.py
+│   │   │   	│	├── customer_api.py
+│   │   │   	│	├── purchase_order_api.py
+│   │   │   	│	├── sales_order_api.py
+│   │   │   	│	├── stock_movement_api.py
+│   │   │   	│	├── inventory.py
+│   │   │   	│	├── reports_api.py
+│   │   │       │   └── __init__.py
+│   │   │       ├── router.py
+│   │   │       └── __init__.py                         
+│   │   │                   
+│   │   ├── core/                                    # App core config, security, startup logic
+│   │   │   ├── config.py                      
+│   │   │   ├── security.py         
+│   │   │   └── __init__.py  
+│   │   ├── db/                                      
+│   │   │   ├── base.py                              # Declarative base, metadata
+│   │   │   ├── session.py                           # SessionLocal and engine
+│   │   │   ├── models/
+│   │   │   │   ├── user.py
+│   │   │   │   ├── product.py
+│   │   │   │   ├── supplier.py
+│   │   │   │   ├── customer.py
+│   │   │   │   ├── purchase_order.py
+│   │   │   │   ├── sales_order.py
+│   │   │   │   ├── order_item.py
+│   │   │   │   ├── inventory.py
+│   │   │   │   ├── stock_movement.py
+│   │   │   │   └── __init__.py 
+│   │   │   └── __init__.py        
+│   │   │                     
+│   │   ├── schemas/                               # Pydantic schemas for request/response validation 
 │   │   │   ├── user.py
+│   │   │   ├── product.py
+│   │   │   ├── supplier.py			
+│   │   │   ├── customer.py			          
+│   │   │   ├── purchase_order.py	
+│   │   │   ├── sale_order.py                        
+│   │   │   ├── order_item.py       
 │   │   │   ├── inventory.py
-│   │   │   ├── stock.py
-│   │   │   └── supplier.py
-│   │   ├── schemas/                            # Pydantic schemas for request/response validation 
-│   │   │   ├── __init__.py
-│   │   │   ├── token.py
-│   │   │   ├── user.py					          
-│   │   │   ├── inventory.py                        
-│   │   │   ├── stock.py                       
-│   │   │   └── supplier.py    
-│   │   ├── services/                           # Business logic
-│   │   │   ├── __init__.py
+│   │   │   ├── stock_movement.py                      
+│   │   │   └── __init__.py 
+│   │   │    
+│   │   ├── services/                              # Business logic
 │   │   │   ├── auth_service.py
-│   │   │   ├── report_service.py
-│   │   │   └── alert_service.py    
-│   │   ├── db/                                 # Daabase connection and model registration
-│   │   │   ├── base.py
-│   │   │   ├── base_class.py
-│   │   │   └── session.py                      # SQLALchemy  session factory    
-│   │   ├── crud/                               # CRUD operations
-│   │   │   ├── __init__.py                     # Import 'inventory', 'stock', 'supplier'
-│   │   │   ├── base.py                         # Reusable CRUD logic
-│   │   │   ├── inventory.py
-│   │   │   ├── stock.py
-│   │   │   └── supplier.py                            
-│   │   ├── utils/                              # FastAPI app entry point
-│   │   │   ├── __init__.py    
-│   │   │   ├── email.py
-│   │   │   └── file.py         
-│   │   ├── deps.py								# Dependency injection for FastAPI  
-│   │   └── main.py                             # Dependency  overrides                        
-│   ├── alembics/                               # DB migrations
-│   │   ├── versions/  
-│   │   ├── env.py
-│   │   └── script.py.mako
-│   ├── tests/   
-│   │   ├── __init__.py
-│   │   ├── test_inventory.py
-│   │   ├── test_auth.py
-│   │   ├── test_suppliers.py
-│   │   ├── test_stocks.py
-│   │   ├── test_users.py
-│   │   └── conftest.py                                 
+│   │   │   ├── product_service.py
+│   │   │   ├── supplier_service.py
+│   │   │   ├── customer_service.py
+│   │   │   ├── purchase_order_service.py
+│   │   │   ├── sale_order_service.py
+│   │   │   ├── inventory_service.py
+│   │   │   ├── stock_movement_service.py
+│   │   │   └── __init__.py   
+│   │   │  
+│   │   ├── dependencies.py	   
+│   │   ├── main.py	
+│   │   ├── alembic/                               
+│   │   │   ├── version/                          
+│   │   │   ├── env.py         
+│   │   │   └── script.py  	
+│   │   ├── tests/                              
+│   │   │   ├── api/                       
+│   │   │   ├── db/    
+│   │   │   ├── service/     
+│   │   │   └── __init__.py  						
+│   │   └── requirement.txt                                                                      
 │   │
 ├── frontend/( with JavaScript, HTML, CSS)
 │   ├── assets/

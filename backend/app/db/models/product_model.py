@@ -1,0 +1,31 @@
+#app/db/models/product_model.py
+
+from sqlalchemy import Column, Integer, String, Text, Numeric, ForeignKey, DateTime
+from sqlalchemy.sql import func 
+from app.db.base import Base 
+
+class Product(Base):
+	__tablename__ = "products"
+	
+	id = Column("product_id", Integer, primary_key=True, index=True)
+	
+	sku = Column(String(100), unique=True, nullable=False, index=True)
+	product_name = Column(String(255), nullable=False)
+	description = Column(Text, nullable=True)
+	
+	cost_price = Column(Numeric(10,2), nullable=False, default=0.00)
+	salse_price = Column(Numeric(10,2) nullable=False, default=0.00)
+	quantity = Column(Integer, nullable=False, default=0)
+	
+	category_id = Column(Integer, ForeignKey("categories.Categery_id", ondelete="SET NULL"), nullable=True)
+	vendor_id = Column(Integer, ForeignKey("vendors.vendor_id", ondelete="CASCASE"), nullable=False)
+	
+	status = Column(String(20), nullable=False, default="Available")
+	product_image_url = Column(String(255), nullable=True)
+	
+	created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+	updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+	deleted_at = Column(DateTime(timezone=True), nullable=True)
+	
+	def __repr__ (self):
+		return f"<Product(id={self.id}, name='{self.product_name}', sku='{self.sku}')>"

@@ -1,41 +1,53 @@
-#backend/app/schemas/customer_schema.py
+#app/schemas/customer_schema.py
 
-from typing import Optional
+from pydantic import BaseModel, EmailStr, Constr, Field
+from typing  import Optional,
 from enum import Enum
 from datetime import datetime 
-from pydantic import BaseModel, EmailStr, constr 
 
 class CustomerStatus(str, Enum):
-	Active = "Active"
-	Inactive = "Inactive"
+	ACTIVE = "Active"
+	INACTIVE = "Inactive"
 	
+# Shared Base Schema
 class CustomerBase(BaseModel):
-	full_name: constr(max_length=100)
+	full_name: constr(min_length=1, max_length=100)
 	email: Optional[EmailStr] = None 
-	mobile: Constr(max_length=15)
-	phone: Optional[constr(max_length=150 = None 
-	address: constr(max_length=255)
-	city: Optional[constr(max_length=50)] = None 
-	state: constr(max_length=50)
-	status: CustomerStatus = CustomerStatus.Active
-	
-class CustomerCreate(CustomerBase):
-	pass
-	
-class CustomerUpdate(BaseModel):
-	full_name: Optional[constr(max_length=100) = None
-	email: Optional[EmailStr] = None 
-	mobile: Optional[constr(max_length=15)] = None 
-	phone: Optional[constr(max_length=15) ] = None 
-	address: Optional[constr(max_length=255)] = None 
-	city: Optional[constr(max_length=50)] = None 
-	state: Optional[constr(max_length=50)] = None 
+	mobile: constr(min_length=10, max_length)] = None 
+	address: Optional[str] = None 
+	city: Optional[str] = None 
+	state: Optional[str] = None 
 	status: Optional[CustomerStatus] = None 
 	
-class CustomerResponse(CustomerBase):
-	customer_id: int 
-	created_at: datetime 
-	
 	class Config:
-		orm_mode = True 
+		orm_mode = True
+        
+# Schema for Creating Customer 
+class CustomerStatus = CustomerStatus.ACTIVE
+    pass
+		
+# Shema for Updating custoer
+class CustmerUpdate(BaseModel):
+    full_name: Optional[constr(min_length=1, max_length=100)] = None 
+    email: Optional[EmailStr] = None 
+    mobile: Optional[constr(min_length=10, max_length=15)] = None 
+    phone: Optional[constr(min_length=10, max_length=15)] = None 
+    address: Optional[str] = None 
+    city: Optional[str] = None
+    state: Optional[str] = None 
+    status: Optional[str] = None 
+    
+    class Config:
+        orm_mode: True 
+        
+# Schema for API response 
+class CostomerReponse(CustomerBase):
+	id: int 
+	created_at: datetime
+	updated_at: datetime
+	
+	clas Config:
+		orm_mode: True 
+		allow_population_by_field_name = True 
+		
 		

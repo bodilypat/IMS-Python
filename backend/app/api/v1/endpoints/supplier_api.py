@@ -2,6 +2,8 @@
 
 from fastapi import APIRouter, HTTPException, status, Depends 
 from typing import List, Optional
+from sqlalchemy.orm import Session
+
 from app.schemas.supplier import SupplierCreate, SupplierUpdate, SupplierRead 
 from app.services.supplier_service import(
 		create_supplier,
@@ -11,7 +13,7 @@ from app.services.supplier_service import(
 		delete_supplier,
 	)
 from app.db.session import SessionLocal 
-from sqlalchemy.orm import SessionLocal
+
 	
 router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
 
@@ -28,13 +30,13 @@ def get_db():
 def create_new_supplier(supplier: SupplierCreate, db: Session = Depends(get_db)):
 	return create_supplier(db, supplier)
     
-# Get all suppliers 
+# Get all suppliers (Optionally filter by status)
 @router.get("/", response_model=List[SupplierRead]) 
 def list_suppliers(status: Optional[str] = None, db: Session = Depends(get_db)):
     return get_all_suppliers(db, status=status)
     
 # Get a single supplier by ID 
-@router.get("{supplier_id}", response_model=SupplierRead)
+@router.get("/{supplier_id}", response_model=SupplierRead)
 def get_supplier(Supplier_id: int, db: Session = Depends(get_db)):
     supplier = get_supplier_by_id(db, supplier_id)
     if not supplier:
@@ -43,13 +45,17 @@ def get_supplier(Supplier_id: int, db: Session = Depends(get_db)):
     
 # Update a supplier 
 @router.put("/{supplier_id}", response_model=SupplierRead)
-def update_existing_supplier(supplier_id: int,supplier_data: SupplierUpdate, db: Session = Depends(get_db)):
+def update_existing_supplier(
+        supplier_id: int,
+        supplier_data: SupplierUpdate, 
+        db: Session = Depends(get_db)
+    ):
     supplier = update_supplier(db, supplier_id, supplier_data)
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
     return supplier 
     
-@ Soft-delete a supplier 
+# Soft-delete a supplier 
 @router.delete("/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_existing_supplier(supplier_id: int, db: Session = Depends(get_db)):
     success = delete_supplier(db, supplier_id)

@@ -27,38 +27,41 @@ Full-Stack-Inventory-Management-System-Directory-Structure/
 │   │   │   ├── base.py                              # Declarative base, metadata
 │   │   │   ├── session.py                           # SessionLocal and engine
 │   │   │   ├── models/
-│   │   │   │   ├── user_model.py
-│   │   │   │   ├── product_model.py
-│   │   │   │   ├── supplier_model.py
-│   │   │   │   ├── customer_model.py
-│   │   │   │   ├── purchase_order_model.py
-│   │   │   │   ├── sales_order_model.py
-│   │   │   │   ├── order_item_model.py
-│   │   │   │   ├── inventory_model.py
-│   │   │   │   ├── stock_movement_model.py
+│   │   │   │   ├── userpy
+│   │   │   │   ├── product.py
+│   │   │   │   ├── supplier.py
+│   │   │   │   ├── customer.py
+│   │   │   │   ├── purchase_order.py
+│   │   │   │   ├── purchase_order_item.py
+│   │   │   │   ├── sales_order.py
+│   │   │   │   ├── sale_order_item.py
+│   │   │   │   ├── inventory.py
+│   │   │   │   ├── stock_movement.py
 │   │   │   │   └── __init__.py 
 │   │   │   └── __init__.py        
 │   │   │                     
-│   │   ├── schemas/                               # Pydantic schemas for request/response validation 
-│   │   │   ├── user_schema.py
-│   │   │   ├── product_schema.py
-│   │   │   ├── supplier_schema.py			
-│   │   │   ├── customer_schema.py			          
-│   │   │   ├── purchase_order_schema.py	
-│   │   │   ├── sales_order_schema.py                        
-│   │   │   ├── order_item_schema.py       
-│   │   │   ├── inventory_schema.py
-│   │   │   ├── stock_movement_schema.py                      
+│   │   ├── schemas/                                 # Pydantic schemas for request/response validation 
+│   │   │   ├── user.py
+│   │   │   ├── product.py
+│   │   │   ├── supplier.py			
+│   │   │   ├── customer.py			          
+│   │   │   ├── purchase_order.py
+│   │   │   ├── purchase_order_item.py	
+│   │   │   ├── sales_order.py                        
+│   │   │   ├── sale_order_item.py       
+│   │   │   ├── inventory.py
+│   │   │   ├── stock_movement.py                      
 │   │   │   └── __init__.py 
 │   │   │    
-│   │   ├── services/                              # Business logic
+│   │   ├── services/                                # Business logic
 │   │   │   ├── auth_service.py
 │   │   │   ├── product_service.py
 │   │   │   ├── supplier_service.py
 │   │   │   ├── customer_service.py
 │   │   │   ├── purchase_order_service.py
+│   │   │   ├── purchase_order_item_service.py
 │   │   │   ├── sale_order_service.py
-│   │   │   ├── order_item_service.py
+│   │   │   ├── sale_order_item_service.py
 │   │   │   ├── inventory_service.py
 │   │   │   ├── stock_movement_service.py
 │   │   │   └── __init__.py   

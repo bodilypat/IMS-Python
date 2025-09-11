@@ -25,17 +25,17 @@ def get_db():
         db.close() 
 
 # Create a new sale order 
-@router.post("/", response_model=SaleOrderRead, status_code=status.HTTP_201_CREATED)
+@router.post("/", respond_model=SaleOrderRead, status_code=status.HTTP_201_CREATED)
 def create_new_sale_order(order: SaleOrderCreate, db: Session = Depends(get_db)):
     return create_sale_order(db, order)
     
 # Get all sale orders (Optionally filtered by status)
-@router.get("/", response_model=List["SaleOrderRead"]
+@router.get("/", respond_model=List["SaleOrderRead"]
 def list_sale_orders(status: Optional[str] = None, db: Session = Depends(get_db)):
     return get_all_sale_orders(db, status=status)
     
 # Get a single sale order by ID
-@router.get("/{sale_order_id}", response_model=SaleOrderRead)
+@router.get("/{sale_order_id}", respond_model=SaleOrderRead)
 def get_sale_order(sale_order_id: int, db: Session = Depends(get_db)):
     order = get_sale_order_by_id(db, sale_order_id)
     if not order:
@@ -55,7 +55,7 @@ def update_existing_sale_order(
         return updated_order
 
 # soft-delete a sale order 
-@router.delete("/{sale_order_id]",, status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{sale_order_id}",, status_code=status.HTTP_204_NO_CONTENT)
 def delete_sale_order(sale_order_id: int , db: Session = Depends(get_db)):
     success = soft_delete_sale_order(db, sale_order_id)
     if not success:

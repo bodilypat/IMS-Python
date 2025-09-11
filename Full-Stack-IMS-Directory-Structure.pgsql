@@ -5,15 +5,15 @@ Full-Stack-Inventory-Management-System-Directory-Structure/
 │   │   │   └── v1/
 │   │   │       ├── endpoints/
 │   │   │   	│	├── auth_api.py
-│   │   │   	│	├── product_api.py
-│   │   │   	│	├── supplier_api.py
 │   │   │   	│	├── customer_api.py
+│   │   │   	│	├── inventory_api.py
+│   │   │   	│	├── product_api.py
 │   │   │   	│	├── purchase_order_api.py
 │   │   │   	│	├── purchase_order_item_api.py
-│   │   │   	│	├── sales_order_api.py
+│   │   │   	│	├── sale_order_api.py
 │   │   │   	│	├── sale_order_item_api.py
 │   │   │   	│	├── stock_movement_api.py
-│   │   │   	│	├── inventory_.py
+│   │   │   	│	├── supplier_.py
 │   │   │   	│	├── reports_api.py
 │   │   │       │   └── __init__.py
 │   │   │       ├── router.py
@@ -27,43 +27,43 @@ Full-Stack-Inventory-Management-System-Directory-Structure/
 │   │   │   ├── base.py                              # Declarative base, metadata
 │   │   │   ├── session.py                           # SessionLocal and engine
 │   │   │   ├── models/
-│   │   │   │   ├── userpy
-│   │   │   │   ├── product.py
-│   │   │   │   ├── supplier.py
 │   │   │   │   ├── customer.py
+│   │   │   │   ├── inventory.py
+│   │   │   │   ├── product.py
 │   │   │   │   ├── purchase_order.py
 │   │   │   │   ├── purchase_order_item.py
-│   │   │   │   ├── sales_order.py
+│   │   │   │   ├── sale_order.py
 │   │   │   │   ├── sale_order_item.py
-│   │   │   │   ├── inventory.py
 │   │   │   │   ├── stock_movement.py
+│   │   │   │   ├── supplier.py
+│   │   │   │   ├── user.py
 │   │   │   │   └── __init__.py 
 │   │   │   └── __init__.py        
 │   │   │                     
 │   │   ├── schemas/                                 # Pydantic schemas for request/response validation 
-│   │   │   ├── user.py
-│   │   │   ├── product.py
-│   │   │   ├── supplier.py			
-│   │   │   ├── customer.py			          
-│   │   │   ├── purchase_order.py
-│   │   │   ├── purchase_order_item.py	
-│   │   │   ├── sales_order.py                        
-│   │   │   ├── sale_order_item.py       
+│   │   │   ├── customer.py
 │   │   │   ├── inventory.py
-│   │   │   ├── stock_movement.py                      
+│   │   │   ├── product.py			
+│   │   │   ├── purchase_order.py			          
+│   │   │   ├── purchase_order_item.py	
+│   │   │   ├── sale_order_item.py                        
+│   │   │   ├── sale_order.py       
+│   │   │   ├── stock_movement.py
+│   │   │   ├── supplier.py
+│   │   │   ├── user.py                      
 │   │   │   └── __init__.py 
 │   │   │    
 │   │   ├── services/                                # Business logic
 │   │   │   ├── auth_service.py
-│   │   │   ├── product_service.py
-│   │   │   ├── supplier_service.py
 │   │   │   ├── customer_service.py
+│   │   │   ├── inventory_service.py
+│   │   │   ├── product_service.py
 │   │   │   ├── purchase_order_service.py
 │   │   │   ├── purchase_order_item_service.py
 │   │   │   ├── sale_order_service.py
 │   │   │   ├── sale_order_item_service.py
-│   │   │   ├── inventory_service.py
 │   │   │   ├── stock_movement_service.py
+│   │   │   ├── suppler_service.py
 │   │   │   └── __init__.py   
 │   │   │  
 │   │   ├── dependencies.py	                            # Shared route dependencies

@@ -1,50 +1,56 @@
-#backend/app/api/v1/endpoints/user_api.py
+# app/api/v1/endppoints/-user_api.py
 
 from fastapi import APIRouter, Depends, HTTPException, status 
-from sqlalchemy.orm import Session
-from typing import List 
+from sqlalchemy.orm import Session 
+from typing import List, Optional
 
-from app.schemas import user_schema 
-from app.models import user_model
-from app.db.session import get_db 
-from app.crud import user.crud 
+from app.schemas.user import(UserCreate, UserRead, UserUpdate, UserStatus)
+from app.services.user_service import UserService 
+from db.session import get_db
 
-router = APIRouter(
-		prefix="/users",
-		tags=["users"]
-	)
-	
-	@router.get("/", response_model=List[user_schema.UserResponse])
-	def get_users(skip:int = 0, limit: int = 100, db: Session = Depends(get_db)):
-		return user_crud.get_users(Db, skip=skip, limit=limit)
-		
-	@router.get("/{user_id}", response_model=user_schema.UserResponse)
-	def get_user(user_id: int, db: Session = Depends(get_db)):
-		db_user = user.crud.get_user_by_id(db, user_id)
-		if not db_user:
-			raise HTTPException(status_code=404, detail="User not found")
-		return db_user
-		
-	@router.post("/", response_model=user_schema.UserResponse, status_code=status.HTTP_201_CREATED)
-	def create_user(user_in: user_schema.UserCreate, db: Session = Depends(get_db)):
-		existing_user =  user_crud.get_user_by_email(db, user_in.email)
-		if existing_user:
-			raise HTTPException(status_code=400, detail="Email already registered")
-		return user_crud.create_user(db, user_in)
-		
-	@router.put("/{user_id}", response_model=user_schema.UserResponse)
-    def update_user(user_id: int, user_update: user_schema.UserUpdate, db: Session = Depends(get_db)):
-        db_user = user_crud.get_user_by_id(db, user_id)
-        if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
-        return user_crud.update_user(db, db_user, user_update)
+router = APIRouter(prefix="/users", tags=["User"],
 
-    @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
-    def delete_user(user_id: int, db: Session = Depends(get_db)):
-        db_user = user_crud.get_user_by_id(db, user_id)
-        if not db_user:
-            raise HTTPException(status_code=404, detail="User not found")
-        user_crud.delete_user(db, db_user)
-        
-        
-	
+# Create user 
+@router.post("/", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+def create_user(user_in: UserCreate, db: Session = Depends(get_db)):
+    service = UserService(db)
+    try:
+        return service.create_user(user_in)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+ 
+# Get user by ID 
+@router.get("/{user_id}",response_model=UserRead)
+def get_user_by_id(user_id: int, db: Session = Depends(get_db)):
+    service = UserService(db)
+    user = service.get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user 
+    
+ # Get all users (with optional status filter)
+ @router.get("/", response_model=List(UserRead])
+ def get_all_users(status: Optional[UserStaus] = None, db: Session = Depends(get_db)):
+     service = UserService(db)
+     return sericve.get_all_users(status=status)
+     
+# Update user 
+@router.put("/{user_id}", response_model=UserRead)
+def update_user(user_id: int, user_in: UserUpdate, db: Session = Depends(get_db)):
+    service = UserService(db)
+    user = service.update_user(user_id, user_in)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+       return user 
+       
+# Delete (solf-delete) user 
+@router.delete("/{user_id}", status_code=sttus.HTTP_201_NO_CONTENT)
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    service = UserService(db)
+    success = service.delete_user(user_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="User not found")
+    return 
+    
+    

@@ -1,13 +1,11 @@
-import axios from 'axios';
+//src/services/productService.js 
 
-const API = axios.create({
-    baseURL: 'http://inventories.com/api',
-});
+import api from "./api";
 
-export default {
-    getAll: () => API.get('/products'),
-    getById: (id) => API.get(`/products/${id}`),
-    create: (data) => API.post('/products', data),
-    update: (id, data) => API.put(`/products/${id}`, data),
-    delete: (id) => API.delete(`/products/${id}`),
-};
+const getAll = async () => (await api.get("/products")).data;
+const getById = async (id) => (await api.get(`/products/${id}`)).data;
+const create = async (data) => (await api.post("/products", data)).data;
+const update = async (id, data) => (await api.put(`/products/${id}`, data)).data;
+const remove = async (id) => (await api.delete(`/products/${id}`)).data;
+
+export default { getAll, getById, create, update, remove };

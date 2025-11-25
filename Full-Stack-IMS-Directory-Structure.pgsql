@@ -1,123 +1,164 @@
-Full-Stack-Inventory-Management-System-Directory-Structure/
-├── backend/
+Full-Stack-Medical-Inventory-Management-System-Directory-Structure/
+├── backend/ (MVC Restful API router with Python)
 │   ├── app/                              
-│   │   ├── api/                                      # FastAPI endpoints (routes/controllers)
+│   │   ├── api/                                # Defines RESTful endpoints using FastAPI
+│   │   │   ├── v1/
 │   │   │   ├── endpoints/
-│   │   │   │	├── product_router.py
-│   │   │   │	├── supplier_router.py
-│   │   │   │	├── customer_router.py
-│   │   │   │	├── product_router.py
-│   │   │   │	├── purchase_order_router.py
-│   │   │   │	├── purchase_order_item_router.py
-│   │   │   │	├── sale_order_router.py
-│   │   │   │	├── sale_order_item_router.py
-│   │   │   │	├── Inventory_movement_router.py
-│   │   │   │	├── inventory_transaction_router.py
-│   │   │   │   └── __init__.py
-│   │   │   ├── router.py
-│   │   │   └── __init__.py                         
-│   │   │                   
-│   │   ├── core/                                    # App core config, security, startup logic
-│   │   │   ├── config.py                      
-│   │   │   ├── security.py         
-│   │   │   └── __init__.py  
-│   │   ├── db/                                      
-│   │   │   ├── base.py                              # Declarative base, metadata
-│   │   │   ├── session.py                           # SessionLocal and engine
-│   │   │   ├── models/
-│   │   │   │   ├── product.py
-│   │   │   │   ├── supplier.py
-│   │   │   │   ├── customer.py
-│   │   │   │   ├── purchase_order.py
-│   │   │   │   ├── purchase_order_item.py
-│   │   │   │   ├── sale_order.py
-│   │   │   │   ├── sale_order_item.py
-│   │   │   │   ├── inventory_movement.py
-│   │   │   │   ├── inventory_transaction.py
-│   │   │   │   └── __init__.py 
-│   │   │   └── __init__.py        
-│   │   │                     
-│   │   ├── schemas/                                 # Pydantic schemas for request/response validation 
-│   │   │   ├── product.py
+│   │   │  	│	├── Product_controller.py
+│   │   │  	│	├── supplier_controller.py
+│   │   │  	│	├── inventory_controller.py
+│   │   │  	│	├── stock_controller.py
+│   │   │  	│	├── report_controller.py
+│   │   │   │   └── auth_controller.py
+│   │   │   └── router.py                       # Aggregates v1 endpoints                   
+│   │   ├── core/                               # App configurations, environment and JWT security
+│   │   │   ├── config.py                       # Application settings      
+│   │   │   ├── security.py                     # JWT, password hoshing, password hashing
+│   │   │   └── logging.py                      # Logging configuration
+│   │   ├── models/                             # SQLAlchemy ORM models 
+│   │   │   ├── user.py
+│   │   │   ├── inventory.py
+│   │   │   ├── stock.py
 │   │   │   ├── supplier.py
-│   │   │   ├── customer.py			
-│   │   │   ├── purchase_order.py			          
-│   │   │   ├── purchase_order_item.py	
-│   │   │   ├── sale_order_item.py                        
-│   │   │   ├── sale_order.py       
-│   │   │   ├── inventory_movement.py
-│   │   │   ├── inventory_transaction.py       
-│   │   │   └── __init__.py 
-│   │   │    
-│   │   ├── services/                                # Business logic
-│   │   │   ├── product_service.py
-│   │   │   ├── supplier_service.py
-│   │   │   ├── customer_service.py
-│   │   │   ├── purchase_order_service.py
-│   │   │   ├── purchase_order_item_service.py
-│   │   │   ├── sale_order_service.py
-│   │   │   ├── sale_order_item_service.py
-│   │   │   ├── inventory_movement_service.py
-│   │   │   ├── inventory_transaction_service.py
-│   │   │   └── __init__.py   
-│   │   │  
-│   │   ├── dependencies.py	                            # Shared route dependencies
-│   │   ├── main.py	                                    # FastAPI app entry point
-│   │   ├── alembic/                               
-│   │   │   ├── version/                          
-│   │   │   ├── env.py         
-│   │   │   └── script.py  	
-│   │   ├── tests/                                      # Test suite
-│   │   │   ├── api/                       
-│   │   │   ├── db/    
-│   │   │   ├── service/     
-│   │   │   └── __init__.py  						
-│   │   └── requirement.txt                                                                      
+│   │   │   ├── report.py
+│   │   │   └── __init__.py
+│   │   ├── schemas/                            # Pydantic schemas 
+│   │   │   ├── token.py                        # Authentication
+│   │   │   ├── user.py					        # User Account 
+│   │   │   ├── inventory.py                    # Medical items    
+│   │   │   ├── stock.py                        # Batch & Quantity Tracking 
+│   │   │   ├── supplier.py 
+│   │   │   ├── report.py 
+│   │   │   └── __init__.py                    
+│   │   ├── services/                           # Business logic
+│   │   │   ├── auth_service.py
+│   │   │   ├── report_service.py
+│   │   │   └── alert_service.py    
+│   │   ├── db/                                 # Daabase connection and model registration
+│   │   │   ├── base.py
+│   │   │   ├── base_class.py
+│   │   │   └── session.py                      # SQLALchemy  session factory    
+│   │   ├── crud/                               # CRUD operations
+│   │   │   ├── __init__.py                     # Import 'inventory', 'stock', 'supplier'
+│   │   │   ├── base.py                         # Reusable CRUD logic
+│   │   │   ├── inventory.py
+│   │   │   ├── stock.py
+│   │   │   └── supplier.py                            
+│   │   ├── utils/                              # FastAPI app entry point
+│   │   │   ├── email.py
+│   │   │   └── file.py         
+│   │   ├── deps.py								# Dependency injection for FastAPI  
+│   │   └── main.py                             # Dependency  overrides                        
+│   ├── alembics/                               # DB migrations
+│   │   ├── versions/  
+│   │   └── env.py                   
+│   ├── tests/   
+│   │   ├── test_inventory.py
+│   │   ├── test_auth.py
+│   │   ├── test_suppliers.py
+│   │   ├── test_stocks.py
+│   │   ├── test_users.py
+│   │   └── conftest.py                                 
 │   │
-├── frontend/( with JavaScript, HTML, CSS)
-│   ├── assets/
-│   │   ├── img/
-│   │   │   └── logo.png
-│   │   ├── icons/
-│   │   │   └── inventory.svg
-│   ├── css/                                     # All stylesheets
-│   │   ├── base.css                             # Reset and base styles
-│   │   ├── layout.css                           # Grid, flexbox layouts
-│   │   ├── components.css                       # UI components: buttons, forms
-│   │   └── page.css                             # Page-specific styles
-│   ├── js/                                      # JavaScript Logic
-│   │   ├── api/                                 # API interaction layer
-│   │   │   ├── auth.js                      
-│   │   │   ├── inventory.js                      
-│   │   │   ├── suppliers.js                      
-│   │   │   └── stock.js
-│   │   ├── components/                         # Reuseable DOM component creators 
-│   │   │   ├── navbar.js                      
-│   │   │   ├── table.js                                     
-│   │   │   └── model.js
-│   │   ├── pages/                              # Page logic/scripts
-│   │   │   ├── dashboard.js                      
-│   │   │   ├── login.js                      
-│   │   │   ├── inventory.js  
-│   │   │   ├── suppliers.js                           
-│   │   │   └── stock.js
-│   │   ├── utils/                              # Helper functions
-│   │   │   ├── formValidator.js                      
-│   │   │   ├── tokenManager.js                                 
-│   │   │   └── domUtils.js
-│   │   │
-│   │   └── main.js                    		    # App initializer and routing logic
-│   │
-│   ├── html/                           		# All HTML pages
-│   │   ├── index.html                  		# Login / Landing page
-│   │   ├── dashboard.html
-│   │   ├── inventory.html
-│   │   ├── suppliers.htm
-│   │   └── stock.html
-│   │
-│   ├── .env                                    # environment variables (for devs, optional)
-│   ├── .README.md                              # Project instructions
-│   └── package.json                            # If using build tools or npm package (optional)
+├── frontend/( React, JavaScript, HTML, CSS)
+│   │   
+│   ├── App.jsx
+│   │                           
+│   ├── main.jsx                                     
+│   │   
+│   ├── src/                                       
+│   │   ├── api/                                               # Handle all network requests to backend API.
+│   │   │   ├── axiosClient.js
+│   │   │   ├── productApi.js
+│   │   │   ├── catetogoriesApi.js
+│   │   │   ├── suppliersApi.js    
+│   │   │   ├── inventoryApi.js
+│   │   │   ├── purchaseOrderApi.js
+│   │   │   ├── SaleOrderApi.js                                      
+│   │   │   └── userApi.js
+│   │   ├── components/                                        # Reusable components
+│   │   │   ├── tables/
+│   │   │  	│	├── GenericTable.jsx
+│   │   │  	│	├── ProductTable.jsx
+│   │   │  	│	├── SupplierTable.jsx
+│   │   │  	│	├── PuurchaseOrderTable.jsx
+│   │   │  	│	├── SaleOrderTable.jsx
+│   │   │   │   └── InventoryTable.jsx                                     
+│   │   │   ├── forms/
+│   │   │  	│	├── ProductForm.jsx
+│   │   │  	│	├── SupplierForm.jsx
+│   │   │  	│	├── WarehouseForm.jsx
+│   │   │  	│	├── PurchaseOrderForm.jsx
+│   │   │  	│	├── SalesOrderForm.jsx
+│   │   │  	│	├── LoginForm.jsx
+│   │   │  	│	├── UserForm.jsx
+│   │   │   │   └── partials/
+│   │   │  	│	    ├── ContactInfo.jsx
+│   │   │  	│	    ├── AddressFields.jsx
+│   │   │   │       └── PriceFields.jsx
+│   │   │   ├── common/                                        # Shared helpers/logic compoments
+│   │   │  	│	├── Loader.jsx
+│   │   │  	│	├── Breadcrumb.jsx
+│   │   │   │   └── Pagination.jsx                                                           
+│   │   │   └── ui/                                            # Pure UI elements
+│   │   │  		├── Button.jsx
+│   │   │  		├── Input.jsx
+│   │   │  		├── Select.jsx
+│   │   │  		├── DatePicker.jsx
+│   │   │  		├── TextArea.jsx
+│   │   │  		├── Modal.jsx
+│   │   │  		├── Table.jsx
+│   │   │       └── Badge.jsx
+│   │   ├── hooks/                                             
+│   │   │   ├── useAuth.js
+│   │   │   ├── useFetch.js
+│   │   │   └── useForm.js
+│   │   ├── context/                                        
+│   │   │   └── AuthContext.jsx
+│   │   ├── state/ (optional if using Redux/Zustand)                                            
+│   │   │   ├── productSlice.js
+│   │   │   ├── purchaseSlice.js
+│   │   │   └── InventorySlice.js
+│   │   ├── utils/                                             # Helper functions
+│   │   │   ├── formatter.js
+│   │   │   ├── validators.js
+│   │   │   └── constants.js
+│   │   ├── pages/  
+│   │   │   ├── dashboard/
+│   │   │   │   └── Dashboard.jsx   
+│   │   │   ├── product/
+│   │   │  	│	├── ProductList.jsx                            
+│   │   │  	│	├── ProductDetail.jsx                           
+│   │   │  	│	├── ProductCreate.jsx 
+│   │   │  	│	├── ProductEdit.jsx 
+│   │   │   │   └── categories/                        
+│   │   │  	│	    ├── CategoryList.jsx                       
+│   │   │  	│	    ├── CategoryDetial.jsx                       
+│   │   │   │       └── CategoryForm.jsx                     
+│   │   │   ├── suppliers/
+│   │   │  	│	├── SupplierList.jsx                           
+│   │   │  	│	├── SupplierDetail.jsx                         
+│   │   │   │   └── SupplierCreate.jsx                                                   
+│   │   │   ├── purchases/
+│   │   │  	│	├── PurchaseOrderList.jsx                      
+│   │   │  	│	├── PurchaseOrderCreate.jsx                   
+│   │   │  	│	├── PurchaseOrderDetail.jsx
+│   │   │   │   └── Items/
+│   │   │  	│	    ├── POItemView.jsx                              
+│   │   │  	│	    ├── POItemManage.jsx                                                  
+│   │   │   │       └── POItemReceive.jsx                                                                              
+│   │   │   ├── sales/
+│   │   │  	│	├── SalesOrderList.jsx                           
+│   │   │  	│	├── SaleOrderDetail.jsx                         
+│   │   │   │   └── SaleOrderCreate.jsx                                                                            
+│   │   │   └── auth/ 
+│   │   │  		├── Login.jsx                         
+│   │   │       └── Register.jsx       
+│   │   └── styles/                                     
+│   │       ├── global.css                                                     
+│   │       └── variables.css                                 
+│   │                    
+│   └── package.json                       
 ├── .env                                        
 ├── requirements.txt                            
 ├── docker-compose.json                         

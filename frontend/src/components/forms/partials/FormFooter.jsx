@@ -8,20 +8,30 @@ const FormFooter = ({
     cancelLabel = 'Cancel',
     submitLabel = 'Save',
     isSubmitting = false,
-    disable = false,
+    disabled = false,
     className = "",
-
+    align = "right", // "left", "center", "right"
 }) => {
+
+    const alignmentClasses = {
+        left: 'justify-start',
+        center: 'justify-center',
+        right: 'justify-end'
+    } [align];
+
     return (
         <div 
-            className={`form-footer flex justify-end space-x-2 mt-4 ${className}`}
+            className={`form-footer flex ${alignmentClasses} space-x-2 mt-4 ${className}`}
+            role="group"
         >
+            
         {onCancel && (
             <Button 
-                type=
+                type="button"
                 variant="secondary"
                 onClick={onCancel}
                 disabled={isSubmitting}
+                aria-label="CancelLabel"
             >
                 {cancelLabel}
             </Button>
@@ -29,14 +39,17 @@ const FormFooter = ({
         <Button 
             type="submit"
             variant="primary"
-            disabled={disable || isSubmitting}
+            disabled={disabled || isSubmitting}
             isLoading={isSubmitting}    
+            aria-label="SubmitLabel"
         >
             {submitLabel}
         </Button>
     </div>
     );
 }
+export default FormFooter;
+
 
 
 

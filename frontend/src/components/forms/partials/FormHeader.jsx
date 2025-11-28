@@ -8,47 +8,56 @@
 /* Matches professional admin dashboard UI patterns */
 
 import React from 'react';
-import { Form } from '../../ui/ui.css';
-import { Button } from '../../ui/Button';
-import { Icon } from '../../ui/Icon';   
-import { Link } from 'react-router-dom';
+import Button from '../../Button';
+import { FaArrowLeft } from "react-icons/fa";
 
-interface FormHeaderProps {
-    title: string;
-    description?: string;
-    backLink?: string;
-    actionButton?: {
-        label: string;
-        onClick: () => void;
-        type?: 'primary' | 'secondary' | 'danger';
-    };
-}
-export const FormHeader: React.FC<FormHeaderProps> = ({ title, description, backLink, actionButton }) => {
+const FormHeader = ({
+    title,
+    submittle = "",
+    description = "",
+    icon = null,
+    onBack = null, 
+    align = "left", // "left", "center", "right"
+    className = "",
+}) => {
+        const alignmentClasses = align === "center" ? "text-center items-center" : "text-left items-start";
+        
     return (
-        <Form.Header>
-            <div className="form-header-left">
-                {backLink && (
-                    <Link to={backLink} className="form-header-back">   
-                        <Icon name="arrow-left" /> Back
-                    </Link>
-                )}
-                <div className="form-header-titles">
-                    <h1 className="form-header-title">{title}</h1>
-                    {description && <p className="form-header-description">{description}</p>}
+        <header
+            className={`form-header flex flex-col ${alignmentClasses} space-y-2 mb-6 ${className}`}
+        >
+            {/* Back Button */}
+            {onBack && (
+                <div className="self-start mb-2">
+                    <Button 
+                        variant="ghost"
+                        type="button"
+                        onClick={onBack}
+                        className="flex items-center space-x-2"
+                    >
+                        <FaArrowLeft />
+                        <span>Back</span>
+                    </Button>
                 </div>
-            </div>
-            {actionButton && (
-                <Button
-                    type={actionButton.type || 'primary'}
-                    onClick={actionButton.onClick}
-                    className="form-header-action-button"
-                >
-                    {actionButton.label}
-                </Button>
             )}
-        </Form.Header>
+            
+            {/* Title Row */}
+            <div className="flex items-center space-x-3 justify-center">
+                {icon && 
+                    <span className="text-primary-600 text-2xl">{icon}</span>}
+
+                    <h2 className="text-2xl font-semibold">{title}</h2>
+            </div>
+            {/* Subtitle */}
+            {submittle && (
+                <p className="text-md text-gray-600">{submittle}</p>
+            )}
+
+            {/* Description */}
+            {description && (
+                <p className="text-sm text-gray-500">{description}</p>
+            )}
+        </header>
     );
-};
-
-
-
+}
+export default FormHeader;

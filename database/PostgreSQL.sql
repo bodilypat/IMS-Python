@@ -1,4 +1,4 @@
-
+-- Inventory Management System Database Schema for PostgreSQL
 -- Notes: use timestamptz for timestamps, fix nullable FK columns, add inventory uniqueness,
 -- add trigger to maintain updated_at, and add common indexes for FKs.
 

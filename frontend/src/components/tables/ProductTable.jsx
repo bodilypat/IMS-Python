@@ -1,94 +1,152 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+// src/components/tables/ProductTable.jsx
 
-const ProductTable = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+import React, { useCallback, memo } from 'react';
+import { Table } from './Table';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { Button } from '../Button';
+import { useNavigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-  // Fetch products from API on mount
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get("/api/products.php"); // Adjust API endpoint
-      setProducts(response.data);
-    } catch (err) {
-      console.error("Error fetching products:", err);
-      setError("Failed to load products.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <p>Loading products...</p>;
-  if (error) return <p className="text-danger">{error}</p>;
-
-  return (
-    <div className="table-responsive">
-      <table
-        className="table table-striped table-bordered table-hover"
-        style={{ minWidth: "100%" }}
-      >
-        <thead>
-          <tr>
-            <th>Product ID</th>
-            <th>SKU</th>
-            <th>Product Name</th>
-            <th>Description</th>
-            <th>Cost Price</th>
-            <th>Sale Price</th>
-            <th>Quantity</th>
-            <th>Category ID</th>
-            <th>Vendor ID</th>
-            <th>Status</th>
-            <th>Image</th>
-            <th>Created On</th>
-            <th>Updated On</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.length > 0 ? (
-            products.map((product) => (
-              <tr key={product.product_id}>
-                <td>{product.product_id}</td>
-                <td>{product.sku}</td>
-                <td>{product.product_name}</td>
-                <td>{product.description || "-"}</td>
-                <td>${parseFloat(product.cost_price).toFixed(2)}</td>
-                <td>${parseFloat(product.sale_price).toFixed(2)}</td>
-                <td>{product.quantity}</td>
-                <td>{product.category_id || "-"}</td>
-                <td>{product.vendor_id}</td>
-                <td>{product.status}</td>
-                <td>
-                  {product.product_image_url ? (
-                    <img
-                      src={product.product_image_url}
-                      alt={product.product_name}
-                      style={{ width: "50px", height: "50px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    "-"
-                  )}
-                </td>
-                <td>{new Date(product.created_on).toLocaleString()}</td>
-                <td>{new Date(product.updated_on).toLocaleString()}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="13" className="text-center">
-                No products found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
+const formatPrice = (value) => {
+    const n = Number(value);
+    return Number.isFinite(n) ? `$${n.toFixed(2)}` : '-';
 };
 
-export default ProductTable;
+const formatDate = (value) => {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? '-' : d.toLocaleDateString();
+};
+
+const ProductRow = memo(function ProductRow({ product, onView, onEdit, onDelete }) {
+    return (
+        <tr key={product.id}>
+            <td>{product.id}</td>
+            <td>{product.sku ?? '-'}</td>
+            <td>{product.name ?? '-'}</td>
+            <td>{formatPrice(product.const_price)}</td>
+            <td>{formatPrice(product.sale_price)}</td>
+            <td>{product.quantity ?? '-'}</td>
+            <td>{product.category ?? '-'}</td>
+            <td>{product.vendor_id ?? '-'}</td>
+            <td>{product.status ?? '-'}</td>
+            <td>
+                {product.product_image_url ? (
+                    <img
+                        src={product.product_image_url}
+                        alt={product.name ?? 'Product image'}
+                        style={{ width: 50, height: 50, objectFit: 'cover' }}
+                    />
+                ) : (
+                    'No image'
+                )}
+            </td>
+            <td>{formatDate(product.create_at)}</td>
+            <td>{formatDate(product.update_at)}</td>
+            <td>
+                <Button
+                    variant="info"
+                    onClick={() => onView(product.id)}
+                    aria-label={`View product ${product.id}`}
+                    style={{ marginRight: 8 }}
+                >
+                    View
+                </Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => onEdit(product.id)}
+                    aria-label={`Edit product ${product.id}`}
+                    style={{ marginRight: 8 }}
+                >
+                    <FaEdit />
+                </Button>
+                <Button
+                    variant="danger"
+                    onClick={() => onDelete(product.id)}
+                    aria-label={`Delete product ${product.id}`}
+                >
+                    <FaTrash />
+                </Button>
+            </td>
+        </tr>
+    );
+});
+
+ProductRow.propTypes = {
+    product: PropTypes.object.isRequired,
+    onView: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
+};
+
+export const ProductTable = ({ products, onDelete }) => {
+    const navigate = useNavigate();
+
+    const handleView = useCallback((id) => navigate(`/products/view/${id}`), [navigate]);
+    const handleEdit = useCallback((id) => navigate(`/products/edit/${id}`), [navigate]);
+    const handleDelete = useCallback((id) => onDelete(id), [onDelete]);
+
+    return (
+        <Table>
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">SKU</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Const Price</th>
+                    <th scope="col">Sale Price</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Vendor ID</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Image</th>
+                    <th scope="col">Create At</th>
+                    <th scope="col">Update At</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {products.length === 0 ? (
+                    <tr>
+                        <td colSpan="13" style={{ textAlign: 'center' }}>
+                            No products found.
+                        </td>
+                    </tr>
+                ) : (
+                    products.map((product) => (
+                        <ProductRow
+                            key={product.id ?? product.sku}
+                            product={product}
+                            onView={handleView}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                        />
+                    ))
+                )}
+            </tbody>
+        </Table>
+    );
+};
+
+ProductTable.propTypes = {
+    products: PropTypes.arrayOf(PropTypes.shape({
+        id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        sku: PropTypes.string,
+        name: PropTypes.string,
+        const_price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        sale_price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        quantity: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        category: PropTypes.string,
+        vendor_id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+        status: PropTypes.string,
+        product_image_url: PropTypes.string,
+        create_at: PropTypes.string,
+        update_at: PropTypes.string,
+    })),
+    onDelete: PropTypes.func.isRequired,
+};
+
+ProductTable.defaultProps = {
+    products: [],
+};
+
+export default memo(ProductTable);

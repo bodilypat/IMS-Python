@@ -4,6 +4,7 @@ import React from 'react';
 import GenericTable from './GenericTable';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
+import './table.css';
 
 const SaleOrderTable = ({ saleOrders = [], onView, onEdit, onDelete }) => {
     const statusVariant = (status) => {
@@ -24,7 +25,7 @@ const SaleOrderTable = ({ saleOrders = [], onView, onEdit, onDelete }) => {
         }
     };
 
-    const columns = [
+    const columns = useMemo(() => [
         {
             key: 'sale_order_id',
             header: 'Order #',
@@ -35,8 +36,8 @@ const SaleOrderTable = ({ saleOrders = [], onView, onEdit, onDelete }) => {
             header: 'Date',
             format: (value) => {
                 if (!value) return "-";
-                const d = new Date(value);
-                return isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+                const date = new Date(value);
+                return isNaN(date.getTime()) ? "-" : date.toLocaleDateString();
             },
         },
         {
@@ -82,7 +83,7 @@ const SaleOrderTable = ({ saleOrders = [], onView, onEdit, onDelete }) => {
                 </div>
             ),
         },
-    ];
+    ], [onView, onEdit, onDelete]);
 
     return (
         <GenericTable 

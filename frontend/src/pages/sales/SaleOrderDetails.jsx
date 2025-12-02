@@ -1,4 +1,4 @@
-// /C:/Users/pc/Desktop/IMS/Python/frontend/src/pages/sale/SaleOrderDetails.jsx
+//src/pages/sale/SaleOrderDetails.jsx
 
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -186,3 +186,4 @@ const SaleOrderDetails = () => {
 };
 
 export default SaleOrderDetails;
+

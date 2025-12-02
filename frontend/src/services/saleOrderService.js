@@ -1,184 +1,213 @@
-// src/services/saleOrderService.js
+// src/services/SaleOrderService.js
 
-import saleOrderApi from '../api/saleOrderApi';
+/**
+ * SaleOrderService
+ * ---------------------------------------------------------------------
+ * Wraps saleOrderApi with:
+ *  - unified success/error responses
+ *  - auto total calculation (subtotal, tax, discount, total)
+ *  - normalization of order + items
+ *  - convenience workflow methods
+ * ---------------------------------------------------------------------
+ */
 
-/* Normalize API responses and consistently return: { success, data, error } */
-const wrap = async (promise) => {
+import saleOrderApi from "../api/saleOrderApi";
+
+/* ------------------------------------------------------------
+ * Utility helpers
+ * ------------------------------------------------------------ */
+
+const toNumber = (v) => (isNaN(Number(v)) ? 0 : Number(v));
+
+const round2 = (n) => Math.round(n * 100) / 100;
+
+/**
+ * Calculate totals for an order.
+ */
+export const calculateTotals = ({ items = [], discount = 0, taxRate = 0, shipping_fee = 0 }) => {
+    const subtotal = round2(
+        items.reduce((sum, item) => sum + toNumber(item.quantity) * toNumber(item.unit_price), 0)
+    );
+
+    const discountAmount = round2((subtotal * toNumber(discount)) / 100);
+    const taxableAmount = round2(subtotal - discountAmount);
+
+    const tax = round2((taxableAmount * toNumber(taxRate)) / 100);
+    const total = round2(taxableAmount + tax + toNumber(shipping_fee));
+
+    return {
+        subtotal,
+        discount,
+        discount_amount: discountAmount,
+        tax,
+        tax_rate: taxRate,
+        shipping_fee: round2(toNumber(shipping_fee)),
+        total_amount: total,
+    };
+};
+
+/**
+ * Normalize order items to ensure shape consistency.
+ */
+export const normalizeItems = (items = []) =>
+    items.map((i) => ({
+        id: i.id ?? i.item_id ?? null,
+        product_id: i.product_id,
+        product_name: i.product_name ?? i.product?.name ?? "",
+        quantity: toNumber(i.quantity),
+        unit_price: toNumber(i.unit_price),
+        total_price: round2(toNumber(i.quantity) * toNumber(i.unit_price)),
+    }));
+
+/**
+ * Normalize full order from backend.
+ */
+export const normalizeOrder = (o = {}) => ({
+    id: o.id ?? o.sale_order_id,
+    sale_number: o.sale_number,
+    customer_id: o.customer_id,
+    customer_name: o.customer_name ?? o.customer?.name ?? "",
+    status: o.status ?? "Pending",
+    payment_status: o.payment_status ?? "Pending",
+    currency: o.currency ?? "USD",
+
+    items: normalizeItems(o.items),
+
+    subtotal: toNumber(o.subtotal),
+    tax: toNumber(o.tax),
+    tax_rate: toNumber(o.tax_rate ?? 0),
+    discount: toNumber(o.discount ?? 0),
+    discount_amount: toNumber(o.discount_amount ?? 0),
+    total_amount: toNumber(o.total_amount),
+    shipping_fee: toNumber(o.shipping_fee ?? 0),
+
+    order_date: o.order_date,
+    expected_delivery_date: o.expected_delivery_date,
+    delivered_date: o.delivered_date,
+
+    shipping_address: o.shipping_address ?? "",
+    shipping_provider: o.shipping_provider ?? "",
+    note: o.note ?? "",
+});
+
+/**
+ * Wrap API responses in a consistent structure.
+ */
+const safeRequest = async (fn) => {
     try {
-        const response = await promise;
-        return { success: true, data: response?.data ?? null, error: null };
-    } catch (error) {
-        const errorMessage = error?.response?.data?.message || error?.message || 'An unknown error occurred';
-        return { success: false, data: null, error: errorMessage };
+        const res = await fn();
+        return {
+            success: true,
+            data: res.data?.data ?? res.data ?? null,
+        };
+    } catch (err) {
+        return {
+            success: false,
+            error:
+                err?.response?.data?.message ||
+                err?.message ||
+                "An unexpected error occurred.",
+        };
     }
 };
 
-/* Small validators that return the wrap-shaped error when invalid */
-const invalid = (msg) => ({ success: false, data: null, error: msg });
-const requireId = (id, name = 'id') => (id === undefined || id === null ? invalid(`${name} is required`) : null);
+/* ------------------------------------------------------------
+ * Service functions
+ * ------------------------------------------------------------ */
 
-const saleOrderService = {
-    /* Basic CRUD */
-    async getSaleOrders(params = {}) {
-        return wrap(saleOrderApi.getSaleOrders(params));
-    },
+const SaleOrderService = {
+    /* ----------------------  Fetching  ---------------------- */
 
-    async getSaleOrderById(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.getSaleOrderById(id));
-    },
+    getSaleOrders: async (params) =>
+        safeRequest(() => saleOrderApi.getAll(params)),
 
-    async createSaleOrder(data = {}) {
-        if (!data) return invalid('payload required');
-        return wrap(saleOrderApi.createSaleOrder(data));
-    },
+    getSaleOrder: async (id) => {
+        const res = await safeRequest(() => saleOrderApi.getById(id));
+        if (!res.success) return res;
 
-    async updateSaleOrder(id, data = {}) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.updateSaleOrder(id, data));
-    },
-
-    async deleteSaleOrder(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.deleteSaleOrder(id));
-    },
-
-    /* Sale Order Items */
-    async getSaleOrderItems(orderId) {
-        const err = requireId(orderId, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.getSaleOrderItems(orderId));
-    },
-
-    async addSaleOrderItem(orderId, itemData = {}) {
-        const err = requireId(orderId, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.addSaleOrderItem(orderId, itemData));
-    },
-
-    async updateSaleOrderItem(orderId, itemId, itemData = {}) {
-        if (requireId(orderId, 'order id')) return requireId(orderId, 'order id');
-        if (requireId(itemId, 'item id')) return requireId(itemId, 'item id');
-        return wrap(saleOrderApi.updateSaleOrderItem(orderId, itemId, itemData));
-    },
-
-    async deleteSaleOrderItem(orderId, itemId) {
-        if (requireId(orderId, 'order id')) return requireId(orderId, 'order id');
-        if (requireId(itemId, 'item id')) return requireId(itemId, 'item id');
-        return wrap(saleOrderApi.deleteSaleOrderItem(orderId, itemId));
-    },
-
-    /* STATUS & WORKFLOW */
-    async updateSaleOrderStatus(id, status) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        if (!status) return invalid('status is required');
-        return wrap(saleOrderApi.updateSaleOrderStatus(id, status));
-    },
-
-    async confirmSaleOrder(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.confirmSaleOrder(id));
-    },
-
-    async shipSaleOrder(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.shipSaleOrder(id));
-    },
-
-    async deliverSaleOrder(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.deliverSaleOrder(id));
-    },
-
-    async cancelSaleOrder(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.cancelSaleOrder(id));
-    },
-
-    async completeSaleOrder(id) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.completeSaleOrder(id));
-    },
-
-    /* PAYMENT */
-    async recordPayment(orderId, paymentData = {}) {
-        const err = requireId(orderId, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.recordPayment(orderId, paymentData));
-    },
-
-    async updatePaymentRecord(orderId, paymentId, paymentData = {}) {
-        if (requireId(orderId, 'order id')) return requireId(orderId, 'order id');
-        if (requireId(paymentId, 'payment id')) return requireId(paymentId, 'payment id');
-        return wrap(saleOrderApi.updatePaymentRecord(orderId, paymentId, paymentData));
-    },
-
-    async getPaymentHistory(orderId) {
-        const err = requireId(orderId, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.getPaymentHistory(orderId));
-    },
-
-    async refundPayment(orderId, refundData = {}) {
-        const err = requireId(orderId, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.refundPayment(orderId, refundData));
-    },
-
-    /* DISCOUNT & TAXES */
-    async applyDiscount(id, discountData = {}) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.applyDiscount(id, discountData));
-    },
-
-    async applyTaxes(id, taxData = {}) {
-        const err = requireId(id, 'order id');
-        if (err) return err;
-        return wrap(saleOrderApi.applyTaxes(id, taxData));
-    },
-
-    /* HELPERS */
-
-    // Calculate subtotal, tax amount and total. Items can have `price` or `unit_price`.
-    calculateTotals(items = [], taxPercent = 0, shippingFee = 0) {
-        if (!Array.isArray(items)) items = [];
-        const subtotal = items.reduce((acc, item) => {
-            const qty = Number(item.quantity) || 0;
-            const price = Number(item.price ?? item.unit_price) || 0;
-            return acc + qty * price;
-        }, 0);
-        const taxAmount = (subtotal * Number(taxPercent || 0)) / 100;
-        const total = subtotal + taxAmount + Number(shippingFee || 0);
-        return { subtotal, taxAmount, total };
-    },
-
-    // Prepare payload expected by backend (snake_case)
-    prepareSaleOrderPayload(formData = {}) {
-        const items = Array.isArray(formData.items) ? formData.items : [];
         return {
-            customer_name: (formData.customer_name || '').trim(),
-            order_date: formData.order_date ? new Date(formData.order_date).toISOString() : undefined,
-            shipping_address: (formData.shipping_address || '').trim(),
-            shipping_provider: (formData.shipping_provider || '').trim(),
-            shipping_fee: Number(formData.shipping_fee) || 0,
-            tax: Number(formData.tax) || 0,
-            items: items.map((item) => ({
-                name: (item.name || '').trim(),
-                quantity: Number(item.quantity) || 0,
-                price: Number(item.unit_price ?? item.price) || 0,
-            })),
+            ...res,
+            data: normalizeOrder(res.data),
         };
     },
+
+    /* ----------------------  Create / Update  ---------------------- */
+
+    /**
+     * Build payload for backend.
+     * Can be used by Create & Edit pages.
+     */
+    buildPayload(formData) {
+        const items = normalizeItems(formData.items);
+        const totals = calculateTotals({
+            items,
+            discount: formData.discount,
+            taxRate: formData.tax_rate,
+            shipping_fee: formData.shipping_fee,
+        });
+
+        return {
+            ...formData,
+            items,
+            ...totals,
+        };
+    },
+
+    createSaleOrder: async (data) =>
+        safeRequest(() => saleOrderApi.create(data)),
+
+    updateSaleOrder: async (id, data) =>
+        safeRequest(() => saleOrderApi.update(id, data)),
+
+    deleteSaleOrder: async (id) =>
+        safeRequest(() => saleOrderApi.delete(id)),
+
+    /* ----------------------  Items  ---------------------- */
+
+    addItem: async (orderId, item) =>
+        safeRequest(() => saleOrderApi.addItem(orderId, item)),
+
+    updateItem: async (orderId, itemId, item) =>
+        safeRequest(() => saleOrderApi.updateItem(orderId, itemId, item)),
+
+    deleteItem: async (orderId, itemId) =>
+        safeRequest(() => saleOrderApi.deleteItem(orderId, itemId)),
+
+    /* ----------------------  Workflow (Status)  ---------------------- */
+
+    confirm: async (id) =>
+        safeRequest(() => saleOrderApi.confirmOrder(id)),
+
+    ship: async (id, data) =>
+        safeRequest(() => saleOrderApi.shipOrder(id, data)),
+
+    deliver: async (id, data) =>
+        safeRequest(() => saleOrderApi.deliverOrder(id, data)),
+
+    complete: async (id) =>
+        safeRequest(() => saleOrderApi.completeOrder(id)),
+
+    updateStatus: async (id, status) =>
+        safeRequest(() => saleOrderApi.updateStatus(id, status)),
+
+    /* ----------------------  Discount / Taxes  ---------------------- */
+
+    applyDiscount: async (id, discountData) =>
+        safeRequest(() => saleOrderApi.applyDiscount(id, discountData)),
+
+    applyTaxes: async (id, taxData) =>
+        safeRequest(() => saleOrderApi.applyTaxes(id, taxData)),
+
+    /* ----------------------  Payments  ---------------------- */
+
+    makePayment: async (id, paymentData) =>
+        safeRequest(() => saleOrderApi.makePayment(id, paymentData)),
+
+    getPayments: async (id) =>
+        safeRequest(() => saleOrderApi.getPayments(id)),
+
+    refund: async (id, refundData) =>
+        safeRequest(() => saleOrderApi.refundPayment(id, refundData)),
 };
 
-export default saleOrderService;
+export default SaleOrderService;

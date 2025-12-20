@@ -3,90 +3,117 @@
 from sqlalchemy.orm import Session
 from app.models.product import Product
 from app.models.stock import StockMovement
-from app.services import audit_service 
+from app.services import audit_service
+from typing import List
 
-#-------------------------------------
+MOVEMENT_IN = 'IN'
+MOVEMENT_OUT = 'OUT'
+
+#----------------------------------------------
 # Stock In
-#-------------------------------------
-def stock_in(db: Session, product_id: int, quantity: int, user_id: int):
-    """Increase stock quantity for a product and log the movement."""
-    product = db.query(Product).filter(Product.id == product_id).first()
-    if not product:
-        raise ValueError("Product not found")
-
-    product.stock_quantity += quantity
-    stock_movement = StockMovement(
-        product_id=product_id,
-        quantity=quantity,
-        movement_type='IN',
-        user_id=user_id
-    )
-    db.add(stock_movement)
-    db.commit()
-    audit_service.log_action(db, user_id, f'Stocked in {quantity} units of product ID {product_id}')
-    return product
-
-#-------------------------------------
-# Stock Out
-#-------------------------------------
-def stock_out(db: Session, user_id: int, product_id: int, quantity: int, reference: str = None):
+#----------------------------------------------
+def stock_in(db: Session, product_id: int, quantity: int, user_id: int) -> Product:
     """
-    Remove stock from inventory.
+    Increase stock quantity for a product and log the stock movement.
     """
+
     if quantity <= 0:
         raise ValueError("Quantity must be greater than zero")
     
+
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ValueError("Product not found")
-    if product.stock_quantity < quantity:
-        raise ValueError("Insufficient stock")
-    
-    # Optional min stock rule 
-    if product.min_stock and (product.stock_quantity - quantity) < product.min_stock:
-        raise ValueError("Stock level would fall below minimum stock level")
-    
-    product.stock_quantity -= quantity
+
+    product.stock.quantity += quantity
     stock_movement = StockMovement(
         product_id=product_id,
         quantity=quantity,
-        movement_type='OUT',
-        reference=reference,
+        movement_type=MOVEMENT_IN,
         user_id=user_id
     )
-    db.add(stock_movement)
-    db.commit()
-    db.refresh(product)
-    db.refresh(stock_movement)
-    audit_service.log_action(db, user_id, f'Stocked out {quantity} units of product ID {product_id}')
-    return product
 
-#-------------------------------------
-# Get Stock Level
-#-------------------------------------
-def get_stock_level(db: Session, product_id: int):
-    """Get the current stock level for a specific product."""
+    db.add(stock_movement)
+    product.stock_quantity += quantity
+    db.commit()
+    db.refresh(stock_movement)
+
+    audit_service.log_action(db, user_id, f'Stocked in {quantity} units of product ID {product_id}')
+
+    return stock_movement
+
+#----------------------------------------------
+# Stock Out
+#----------------------------------------------
+def stock_out(db: Session, product_id: int, quantity: int, user_id: int, reference: str = None) -> Product:
+    """
+    Remove stock from inventory with validation.
+    """
+
+    if quantity <= 0:
+        raise ValueError("Quantity must be greater than zero")
+
     product = db.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ValueError("Product not found")
-    return product.stock_quantity
 
-#-------------------------------------
-# Low Stock Alerts 
-#------------------------------------
-def low_stock_alerts(db: Session, threshold: int = 10):
+    if product.stock.quantity < quantity:
+        raise ValueError("Insufficient stock quantity")
+    
+    if product.min_stock is not None and(product.stock.quantity - quantity) < product.min_stock:
+        raise ValueError("Stock quantity cannot go below minimum stock level")
+
+    product.stock.quantity -= quantity
+    stock_movement = StockMovement(
+        product_id=product_id,
+        quantity=quantity,
+        movement_type=MOVEMENT_OUT,
+        user_id=user_id,
+        reference=reference
+    )
+
+    db.add(stock_movement)
+    product.stock_quantity -= quantity
+    db.commit()
+    db.refresh(product)
+    db.refresh(stock_movement)
+
+    audit_service.log_action(db, user_id, f'Stocked out {quantity} units of product ID {product_id}')
+    return stock_movement
+
+#----------------------------------------------
+# Get Stock Level
+#----------------------------------------------
+def get_stock_level(db: Session, product_id: int) -> int:
     """
-    Return product below threshold stock level.
+    Retrieve the current stock level for a specific product.
     """
-    low_stock_products = db.query(Product).filter(Product.stock_quantity < threshold).all()
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise ValueError("Product not found")
+    
+    return product.stock.quantity
+
+#----------------------------------------------
+# Low Stock Alert 
+#----------------------------------------------
+def low_stock_alert(db: Session, threshold: int = 10) -> List[Product]:
+    """
+    Retrieve a list of products that are below their minimum stock level.
+    """
+    low_stock_products = db.query(Product).filter(
+        Product.min_stock.isnot(None),
+        Product.stock.quantity < Product.min_stock
+    ).all()
+    
     return low_stock_products
 
-#-------------------------------------
+#----------------------------------------------
 # Stock Movement History
-#-------------------------------------
-def stock_movement_history(db: Session, product_id: int):
-    """Retrieve stock movement history for a specific product."""
+#----------------------------------------------
+def stock_movement_history(db: Session, product_id: int) -> List[StockMovement]:
+    """
+    Retrieve the stock movement history for a specific product.
+    """
     movements = db.query(StockMovement).filter(StockMovement.product_id == product_id).order_by(StockMovement.timestamp.desc()).all()
     return movements
-
-

@@ -1,86 +1,141 @@
-#app/api/emdpoints/auth.py
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+#app/api/endpoints/auth.py
+
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from typing import Optional
 
-from app.api.dependencies import get_db, get_current_user
-from app.schemas.user import UserCreate, UserRead, changePassword
-from app.schemas.token import Token
-from app.services.auth_service import (
-    register_user,
-    authenticate_user,
-    create_token_for_user,
-    change_user_password,
+from app.sevices import auth_service
+from app.db.session import get_db
+from app.schemas.auth import (
+    UserRegisterRequest,
+    UserLoginResponse,
+    UserLoginRequest,
+    UserLoginResponse,
+    ChangePasswordRequest,
+    ResetPasswordRequest,
+    GenerateResetTokenRequest,
+    GenerateResetTokenResponse,
 )
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(Prefix="/auth", tags=["Authentication"])
 
-#--------------------------------------------
+#------------------------------------------------
 # Register 
-#--------------------------------------------
+#------------------------------------------------
 @router.post(
     "/register", 
-    response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
+    response_model=UserRegisterResponse
 )
-
-def register(
-    user_create: UserCreate, 
+def register_user(
+    payload: UserRegisterRequest,
     db: Session = Depends(get_db)
 ):
-    user = register_user(db, user_create)
-    return user
-
-#--------------------------------------------
+    try:
+        user = auth_service.full_registration_flow(
+            db=db,
+            payload=payload.username,
+            password=payload.password,
+            email=payload.email,
+            user_role=payload.user_role,
+        )
+        return UserRegisterResponse.from_orm(user)
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    
+#------------------------------------------------
 # Login
-#--------------------------------------------
+#------------------------------------------------
 @router.post(
     "/login", 
-    response_model=Token
+    response_model=UserLoginResponse
 )
-def login(
-    form_data: OAuth2PasswordRequestForm = Depends(), 
+def login_user(
+    payload: UserLoginRequest,
     db: Session = Depends(get_db)
 ):
-    user = authenticate_user(
-        db, 
-        email=form_data.username, 
-        password=form_data.password
-    )
-    access_token = create_token_for_user(user)
-    return {
-        "access_token": access_token, 
-        "token_type": "bearer"
-    }
-
-#--------------------------------------------
-# Get current user
-#--------------------------------------------
-@router.get(
-    "/me", 
-    response_model=UserResponse
-)
-def get_current_user_info(
-    current_user: UserResponse = Depends(get_current_user)
-):
-    return current_user
-
-#--------------------------------------------
-# Change password
-#--------------------------------------------
+    try:
+        login_response = auth_service.authenticate_user(
+            db=db,
+            username=payload.username,
+            password=payload.password
+        )
+        return login_response
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(ve)
+        )
+    
+#------------------------------------------------
+# Change Password
+#------------------------------------------------
 @router.post(
     "/change-password", 
-    response_model=UserResponse
+    status_code=status.HTTP_204_NO_CONTENT
 )
 def change_password(
-    password_data: changePassword,
-    current_user: UserResponse = Depends(get_current_user),
+    payload: ChangePasswordRequest,
     db: Session = Depends(get_db)
 ):
-    user = change_user_password(
-        db, 
-        user_id=current_user.id, 
-        old_password=password_data.old_password, 
-        new_password=password_data.new_password
-    )
-    return user
-
+    try:
+        auth_service.change_user_password(
+            db=db,
+            username=payload.username,
+            old_password=payload.old_password,
+            new_password=payload.new_password
+        )
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    
+#------------------------------------------------
+# Generate Reset Token
+#------------------------------------------------
+@router.post(
+    "/generate-reset-token", 
+    response_model=GenerateResetTokenResponse
+)
+def generate_reset_token(
+    payload: GenerateResetTokenRequest,
+    db: Session = Depends(get_db)
+):
+    try:
+        reset_token = auth_service.generate_password_reset_token(
+            db=db,
+            email=payload.email
+        )
+        return GenerateResetTokenResponse(reset_token=reset_token)
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    
+#------------------------------------------------
+# Reset Password
+#------------------------------------------------
+@router.post(
+    "/reset-password", 
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def reset_password(
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db)
+):
+    try:
+        auth_service.reset_user_password(
+            db=db,
+            reset_token=payload.reset_token,
+            new_password=payload.new_password
+        )
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    

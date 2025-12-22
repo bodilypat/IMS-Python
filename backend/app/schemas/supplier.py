@@ -1,33 +1,31 @@
 #app/schemas/supplier.py
 
-from pydantic import BaseModel, EmailStr, constr, Field 
+from pydantic import BaseModel, Field 
 from typing import Optional
-from datetime  import datetime
+from datetime import datetime
 
-# Base Schema (shared fields)
 class SupplierBase(BaseModel):
-    name: constr(min_length=1, max_length=255) = Field(...,description="Supplier name")
-    contact_email: Optional[EmailStr] = Field(None, descript="Supplier email")
-    phone: Optional[constr(min_length=7, max_length=20)] = Field(None, description="Supplier phone")
-    address: Optional[str] = Field(None, descriptin="Supplier address")
+    name: str = Field(..., title="Supplier Name", max_length=100)
+    contact_email: Optional[str] = Field(None, title="Contact Email", max_length=100)
+    phone_number: Optional[str] = Field(None, title="Phone Number", max_length=20)
+    address: Optional[str] = Field(None, title="Address", max_length=200)
+    is_active: bool = Field(True, title="Is Active")
+    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow, title="Created At")
+    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow, title="Updated At")
 
-# Schema for creating a supplier 
 class SupplierCreate(SupplierBase):
     pass
 
-# Schema for updating a supplier 
-class SupplierUpdate(BaseModel):
-    name: Optional[constr(min_length=1, max_length=255)] = None 
-    contact_email: Optional[EmailStr] = None 
-    phone: Optional[constr(min_length=7, max_length=20)] = None 
-    address: Optional[str] = None 
+class SupplierUpdate(SupplierBase):
+    name: Optional[str] = None
+    contact_email: Optional[str] = None
+    phone_number: Optional[str] = None
+    address: Optional[str] = None
+    is_active: Optional[bool] = None
+    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow, title="Updated At")
 
-# Schema for reading supplier data 
-class SupplierRead(SupplierBase):
-    supplier_id: int 
-    created_at: datetime
-    updated_at: datetime
+class SupplierResponse(SupplierBase):
+    id: int
 
     class Config:
         orm_mode = True
-        

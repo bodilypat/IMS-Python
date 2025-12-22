@@ -1,48 +1,24 @@
-#app/schemas/product.py
+#app/models/product.py
 
-from pydantic import BaseModel, constr, condecimal, Field, HttpUrl
-from typing import Optional, Literal
-from detetime import datetime 
+from sqlalchemy import Column, Integer, String, Float, Boolean, Text
+from app.database import Base
 
-# Shared Base Schema 
-class ProductBase(BaseModel):
-    sku: constr(min_length=1, max_length=100) = Field(..., description="Unique stock keeping unit")
-    product_name: constr(min_length=1, max_length=255) = Field(..., description="Name of the product ")
-    description: Optional[str] = Field(None, description="Optional description of the product")
-    cost_price: condecimal(max_digit=10, decimal_places=2) = Field(0.00, description="Purchase of price")
-    sale_price: condecimal(max_digit=10, decimal_places=2) = Field(0.00, description="Selling prince ")
-    quantity: int = Field(0, ge=0, description="Available stock quantity")
-    category_id: Optional[int] = Field(None, description="ID of the product category")
-    vendor_id: int = Field(..., description="vendor or supplier ID")
-    status: Optional[Literal["Available", "Out of stock", "Discountinued"]] = Field("Available", description="Product availability status")
-    product_image_url: Optional[HttpUrl] = Field(None, description="Optional image URL")
+class Product(Base):
+    __tablename__ = 'products'
 
-    # Create schema (inherits all from base)
-    class ProductCreate(ProductBase):
-        pass 
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    price = Column(Float, nullable=False)
+    sku = Column(String(100), unique=True, nullable=False)
+    category = Column(String(100), nullable=True)
+    image_url = Column(String(255), nullable=True)
+    rating = Column(Float, nullable=True)
+    is_in_stock = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)
 
-    # Update Schema (all fields optional)
-    class ProductUpdate(BaseModel):
-        sku: Optional[constr(min_length=1, max_length=100)] = None 
-        product_name: Optional[constr(min_length=1, max_length=255)] = None 
-        description: Optional[str] = None 
-        const_price: Optional[condecimal(max_length=10, decimal_places=2)] = None 
-        sale_price: Optional[condecimal(max_length=10, decimal_places=2)] = None 
-        quantity: Optional[int] = None 
-        category_id: Optional[int] = None 
-        vendor_id: Optional[int] = None 
-        status: Optional[Literal["Available", "Out of stock", "Discontinued"]] = None 
-        product_image_url: Optional[HttpUrl] = None
 
-    # Response Schema (odds product_id and timestamps)
-    class ProductRead(ProductBase):
-        product_id: int = Field(..., description="Product ID")
-        created_at: datetime
-        updated_at: datetime
-        deleted_at: Optional[datetime] = None 
-
-        class Config:
-            orm_mode = True 
-            allow_population_by_field_name = True 
-
-            
+    def __repr__(self):
+        return f"<Product(name={self.name}, price={self.price}, in_stock={self.is_in_stock})>"
+    
+    

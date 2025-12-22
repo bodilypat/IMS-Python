@@ -1,117 +1,67 @@
-#app/services/auth_service.py
+#app/services/audit_service.py
 
 from sqlalchemy.orm import Session
-from app.models.user import User
-from app.core.security import verify_password, create_access_token, hash_password
-from app.service import audit_service
-from datetime import datetime, timedelta
+from datetime import datetime
+from app.models.audit import AuditLog
 
-#--------------------------------------------
-# Register User 
-#--------------------------------------------
-def register_user(db: Session, username: str, password: str, email: str, role: str = "staff") -> User:
-    existing_user = db.query(User).filter(User.username == username).first()
-    if existing_user:
-        raise ValueError("Username already exists")
-    user = User(
-        username=username,
-        password_hash=hash_password(password),
-        email=email,
-        role=role,
+#------------------------------------------------
+# Log audit event
+#------------------------------------------------
+def log_audit_event(
+        db: Session, 
+        user_id: int, 
+        action: str, 
+        description: str,
+    ) -> AuditLog:
+    """
+    Logs an audit event to the database.
+    Args:
+        db (Session): Database session.
+        user_id (int): ID of the user performing the action.
+        action (str): The action performed.
+        description (str): Description of the action.
+    Returns:
+        AuditLog: The created audit log entry.
+    """
+    audit_log = AuditLog(
+        user_id=user_id,
+        action=action,
+        description=description,
+        timestamp=datetime.utcnow()
     )
-    db.add(user)
+    db.add(audit_log)
     db.commit()
-    db.refresh(user)
+    db.refresh(audit_log)
+    return audit_log
 
-    # Audit log
-    audit_service.log_action(db, user.id, "register", f"User {username} registered.")
-    return user
+#------------------------------------------------
+# Get audit logs
+#------------------------------------------------
+def get_audit_logs(
+        db: Session,
+        user_id: int | None = None,
+        action: str | None = None,
+        limit: int =100,
+        
+    ):
+    """
+    Retrieves audit logs from the database with optional filters.
+    Args:
+        db (Session): Database session.
+        user_id (int | None): Filter by user ID.
+        action (str | None): Filter by action.
+        limit (int): Maximum number of logs to retrieve.
+    Returns:
+        List[AuditLog]: List of audit log entries.
+    """
+    query = db.query(AuditLog)
+    if user_id is not None:
+        query = query.filter(AuditLog.user_id == user_id)
+    if action is not None:
+        query = query.filter(AuditLog.action == action)
+    audit_logs = query.order_by(AuditLog.timestamp.desc()).limit(limit).all()
+    return audit_logs
 
-#--------------------------------------------
-# Login User
-#--------------------------------------------
-def login_user(db: Session, username: str, password: str) -> str:
-    user = db.query(User).filter(User.username == username).first()
-    if not user or not verify_password(password, user.password_hash):
-        raise ValueError("Invalid username or password")
+
+
     
-    access_token_expires = timedelta(minutes=60)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-
-    # Audit log
-    audit_service.log_action(db, user.id, "login", f"User {username} logged in.")
-    return access_token
-
-#--------------------------------------------
-# Change Password
-#--------------------------------------------
-def change_password(db: Session, user_id: int, old_password: str, new_password: str) -> None:
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user or not verify_password(old_password, user.password_hash):
-        raise ValueError("Old password is incorrect")
-    
-    user.password_hash = hash_password(new_password)
-    db.commit()
-
-    # Audit log
-    audit_service.log_action(db, user.id, "change_password", f"User {user.username} changed password.")
-
-#--------------------------------------------
-# Generate Token (for password reset)
-#--------------------------------------------
-def generate_reset_token(db: Session, email: str) -> str:
-    user = db.query(User).filter(User.email == email).first()
-    if not user:
-        raise ValueError("Email not found")
-    
-    reset_token = create_access_token(
-        data={"sub": user.username}, expires_delta=timedelta(minutes=30)
-    )
-
-    # Audit log
-    audit_service.log_action(db, user.id, "generate_reset_token", f"User {user.username} requested password reset token.")
-    return reset_token
-
-#--------------------------------------------
-# Reset Password
-#--------------------------------------------
-def reset_password(db: Session, token: str, new_password: str) -> None:
-    from app.core.security import decode_access_token
-    payload = decode_access_token(token)
-    username = payload.get("sub")
-    if not username:
-        raise ValueError("Invalid token")
-    
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        raise ValueError("User not found")
-    
-    user.password_hash = hash_password(new_password)
-    db.commit()
-
-    # Audit log
-    audit_service.log_action(db, user.id, "reset_password", f"User {user.username} reset password.")
-
-#--------------------------------------------
-# Full Login Flow 
-#--------------------------------------------
-def full_login_flow(db: Session, username: str, password: str) -> str:
-    try:
-        token = login_user(db, username, password)
-        return token
-    except ValueError as e:
-        raise ValueError(f"Login failed: {str(e)}")
-    
-#--------------------------------------------
-# Full Registration Flow
-#--------------------------------------------
-def full_registration_flow(db: Session, username: str, password: str, email: str, role: str = "staff") -> User:
-    try:
-        user = register_user(db, username, password, email, role)
-        return user
-    except ValueError as e:
-        raise ValueError(f"Registration failed: {str(e)}")
-    
-

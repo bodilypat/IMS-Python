@@ -1,28 +1,24 @@
-# backend/app/db/session.py
+#app/db/session.py
 
-from sqlalchemy import create_engine 
-from sqlalchemy.orm import sessionmaker, Session 
-from typing import Generator
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 
-from app.core.config import setting
+#------------------------------------------------
+# Configurate database session
+# ------------------------------------------------
+DATABASE_URL = "sqlite:///./inventory.db"  # DB URL 
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
-# Create SQLALchemy engine 
-engine = create_engine(
-		settings.DATABASE_URL,
-		pool_pre_ping=True,
-	)
-	
-	# Create SQLALchemy engine 
-	SessionLocal = sessionmaker(
-		autocomit=False,
-		autoflush=False,
-		bind=engine,
-	)
-	
-	# Dependency to get DB session for FastAPI routes
-	def get_db() -> Generator[Session, None, None]:
-	db = SessionLocal()
-	try: 	
-		yield db 
-	finally: 
-		db.class()
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base class for models
+Base = declarative_base()
+
+# Dependency to get DB session in FastAPI routes
+def get_db() -> Session:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+

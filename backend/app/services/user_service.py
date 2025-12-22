@@ -1,80 +1,63 @@
-#app/services/user_service.py
+# app/services/user_service.property
 
+from typing import Optional
 from sqlalchemy.orm import Session
+
 from app.models.user import User
-from app.core.security import hash_password, verify_password, generate_jwt_token
+from app.schemas.user import UserCreate
+from app.core.security import (
+    verify_password,
+    get_password_hash,
+    create_access_token,
+)
 
-from app.services import audit_service
+# ----------------------------
+# User CRUD / Auth Logic
+# ----------------------------
 
-#----------------------------------------
-# Create User 
-#----------------------------------------
-def create_user(db: Session, username: str, password: str, email: str, role: str = "Staff") -> User:
-    existing_user = db.query(User).filter(User.username == username).first()
-    if existing_user:
-        raise ValueError("Username already exists")
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    return db.query(User).filter(User.email == email).first()
+
+
+def register_user(db: Session, user_create: UserCreate) -> User:
+    hashed_password = get_password_hash(user_create.password)
     user = User(
-        username=username,
-        password=hash_password(password),
-        email=email,
-        role=role
+        email=user_create.email.lower(),
+        hashed_password=hashed_password,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
-
-    # Audit log 
-    audit_service.log_action(db, user_id=user.id, action="create_user", details=f"User {username} created.")
-
     return user
 
-#----------------------------------------
-# Get User by ID
-#----------------------------------------
-def get_user_by_id(db: Session, user_id: int) -> User:
-    user = db.query(User).filter(User.id == user_id).first()
+
+def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
+    user = get_user_by_email(db, email.lower())
     if not user:
-        raise ValueError("User not found")
-    
+        return None
+    if not verify_password(password, user.hashed_password):
+        return None
     return user
 
-#----------------------------------------
-# List Users 
-#----------------------------------------
-def list_users(db: Session, skip: int = 0, limit: int = 100):
-    users = db.query(User).offset(skip).limit(limit).all()
-    return users
 
-#----------------------------------------
-# Update User
-#----------------------------------------
-def update_user(db: Session, user_id: int, **kwargs) -> User:
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        raise ValueError("User not found")
-    
-    # Prevent usrename duplication
-    if "username" in kwargs:
-        existing_user = db.query(User).filter(User.username == kwargs["username"], User.id != user_id).first()
-        if existing_user:
-            raise ValueError("Username already exists")
-        
-        for key, value in kwargs.items():
-            if key == "username":
-                existing_user = db.query(User).filter(User.username == value, User.id != user_id).first()
-                if existing_user:
-                    raise ValueError("Username already exists")
-                if key == "password":
-                    setattr(user, key, hash_password(value))
-            else: setattr(user, key, value)
+def create_token_for_user(user: User) -> str:
+    return create_access_token(
+        data={
+            "sub": str(user.id),
+            "email": user.email,
+        }
+    )
 
+
+def change_user_password(db: Session, user: User, new_password: str) -> User:
+    user.hashed_password = get_password_hash(new_password)
     db.commit()
     db.refresh(user)
-
-    # Audit log 
-    audit_service.log_action(db, user_id=user.id, action="update_user", details=f"User {user.username} updated.")
-
     return user
 
 
-
+def reset_user_password(db: Session, user: User, new_password: str) -> User:
+    user.hashed_password = get_password_hash(new_password)
+    db.commit()
+    db.refresh(user)
+    return user
